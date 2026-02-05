@@ -1,0 +1,68 @@
+/* Verde Days 品牌配色 — 覆寫 Bootstrap CSS 變數 */
+:root {
+  --bs-primary: #7D8B6F;
+  --bs-primary-rgb: 125, 139, 111;
+}
+
+.btn-primary {
+  --bs-btn-bg: #7D8B6F;
+  --bs-btn-border-color: #7D8B6F;
+  --bs-btn-hover-bg: #5C6B4A;
+  --bs-btn-hover-border-color: #5C6B4A;
+  --bs-btn-active-bg: #5C6B4A;
+  --bs-btn-active-border-color: #5C6B4A;
+  --bs-btn-disabled-bg: #A8B99A;
+  --bs-btn-disabled-border-color: #A8B99A;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #7D8B6F;
+  --bs-btn-border-color: #7D8B6F;
+  --bs-btn-hover-bg: #7D8B6F;
+  --bs-btn-hover-border-color: #7D8B6F;
+  --bs-btn-active-bg: #5C6B4A;
+  --bs-btn-active-border-color: #5C6B4A;
+}
+
+.badge-brand {
+  background-color: #A8B99A;
+  color: #fff;
+}
+
+.text-brand-dark {
+  color: #5C6B4A;
+}
+
+.pagination {
+  --bs-pagination-color: #7D8B6F;
+  --bs-pagination-hover-color: #5C6B4A;
+  --bs-pagination-focus-color: #5C6B4A;
+  --bs-pagination-active-bg: #7D8B6F;
+  --bs-pagination-active-border-color: #7D8B6F;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+
+img {
+  object-fit: contain;
+  max-width: 100%;
+}
