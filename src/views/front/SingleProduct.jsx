@@ -1,16 +1,27 @@
 import axios from "axios";
-import { useState } from "react";
-import { useLocation, Link } from "react-router";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useParams, Link } from "react-router";
 import { currency } from "../../utils/format";
+import { createAsyncMessage } from "../../slice/messageReducer";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
 function SingleProduct() {
-  const location = useLocation();
-  const product = location.state?.productData?.product;
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+  useEffect(() => {
+    axios.get(`${API_BASE}/api/${API_PATH}/product/${id}`)
+      .then((res) => setProduct(res.data.product))
+      .catch(() => setProduct(null))
+      .finally(() => setIsLoading(false));
+  }, [id]);
 
   const addToCart = async () => {
     setIsAddingToCart(true);
@@ -21,13 +32,23 @@ function SingleProduct() {
           qty,
         },
       });
-      alert("已加入購物車");
+      dispatch(createAsyncMessage({ success: true, message: "已加入購物車" }));
     } catch (error) {
       console.error("加入購物車失敗", error);
     } finally {
       setIsAddingToCart(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mt-5 text-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
