@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Modal } from "bootstrap";
 
-function DeleteConfirmModal({ isOpen, onClose, onConfirm, productTitle }) {
+function DeleteConfirmModal({ isOpen, onClose, onConfirm, productTitle, itemName, modalTitle = "刪除確認" }) {
+  const displayName = itemName || productTitle;
   const modalRef = useRef(null);
   const modalElRef = useRef(null);
   const onCloseRef = useRef(onClose);
@@ -43,7 +44,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, productTitle }) {
         <div className="modal-content">
           <div className="modal-header bg-danger text-white">
             <h5 className="modal-title" id="deleteModalLabel">
-              刪除產品
+              {modalTitle}
             </h5>
             <button
               type="button"
@@ -53,7 +54,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, productTitle }) {
             ></button>
           </div>
           <div className="modal-body">
-            確定要刪除「<strong>{productTitle}</strong>
+            確定要刪除「<strong>{displayName}</strong>
             」嗎？此操作無法復原。
           </div>
           <div className="modal-footer">

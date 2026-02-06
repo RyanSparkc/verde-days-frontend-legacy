@@ -1,6 +1,7 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { createAsyncMessage } from "../../slice/messageReducer";
 import Pagination from "../../component/Pagination";
 import DeleteConfirmModal from "../../component/DeleteConfirmModal";
 import ProductModal from "../../component/ProductModal";
@@ -19,7 +20,6 @@ const defaultProduct = {
   is_enabled: 0,
   imageUrl: "",
   imagesUrl: [],
-  // 自訂欄位
   careLevel: "",
   light: "",
   water: "",
@@ -31,9 +31,8 @@ const defaultProduct = {
   includes: "",
 };
 
-function AdminApp() {
-  const navigate = useNavigate();
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
+function AdminProducts() {
+  const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState({});
 
@@ -44,9 +43,7 @@ function AdminApp() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
-  // ========== 產品 API ==========
-
-  const getProducts = async (page = 1) => {
+  const getProducts = useCallback(async (page = 1) => {
     try {
       const res = await axios.get(
         `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`
@@ -54,49 +51,17 @@ function AdminApp() {
       setProducts(res.data.products);
       setPagination(res.data.pagination);
     } catch (err) {
-      console.error(err);
+      dispatch(createAsyncMessage(err.response?.data || { success: false, message: '取得產品失敗' }));
     }
-  };
+  }, [dispatch]);
 
-  // 初始化檢查 Token，失敗導向登入頁
   useEffect(() => {
-    const token = document.cookie.replace(
-      /(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/,
-      "$1"
-    );
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    axios.defaults.headers.common["Authorization"] = token;
-    async function checkAuth() {
-      try {
-        await axios.post(`${API_BASE}/api/user/check`);
-        await getProducts();
-        setIsAuthChecked(true);
-      } catch (err) {
-        console.error(err);
-        navigate("/login");
-      }
-    }
-    checkAuth();
-  }, [navigate]);
-
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${API_BASE}/logout`);
-    } catch (err) {
-      console.error(err);
-    }
-    document.cookie =
-      "hexToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    delete axios.defaults.headers.common["Authorization"];
-    navigate("/login");
-  };
+    getProducts();
+  }, [getProducts]);
 
   const createProduct = async () => {
     try {
-      await axios.post(`${API_BASE}/api/${API_PATH}/admin/product`, {
+      const res = await axios.post(`${API_BASE}/api/${API_PATH}/admin/product`, {
         data: {
           ...tempProduct,
           origin_price: Number(tempProduct.origin_price),
@@ -104,16 +69,17 @@ function AdminApp() {
           is_enabled: tempProduct.is_enabled ? 1 : 0,
         },
       });
+      dispatch(createAsyncMessage(res.data));
       setIsProductModalOpen(false);
       await getProducts(1);
     } catch (err) {
-      alert("新增產品失敗：" + (err.response?.data?.message || err.message));
+      dispatch(createAsyncMessage(err.response?.data || { success: false, message: '新增產品失敗' }));
     }
   };
 
   const updateProduct = async () => {
     try {
-      await axios.put(
+      const res = await axios.put(
         `${API_BASE}/api/${API_PATH}/admin/product/${tempProduct.id}`,
         {
           data: {
@@ -124,22 +90,24 @@ function AdminApp() {
           },
         }
       );
+      dispatch(createAsyncMessage(res.data));
       setIsProductModalOpen(false);
       await getProducts(pagination.current_page);
     } catch (err) {
-      alert("更新產品失敗：" + (err.response?.data?.message || err.message));
+      dispatch(createAsyncMessage(err.response?.data || { success: false, message: '更新產品失敗' }));
     }
   };
 
   const deleteProduct = async () => {
     try {
-      await axios.delete(
+      const res = await axios.delete(
         `${API_BASE}/api/${API_PATH}/admin/product/${deleteTarget.id}`
       );
+      dispatch(createAsyncMessage(res.data));
       setIsDeleteModalOpen(false);
       await getProducts(pagination.current_page);
     } catch (err) {
-      alert("刪除產品失敗：" + (err.response?.data?.message || err.message));
+      dispatch(createAsyncMessage(err.response?.data || { success: false, message: '刪除產品失敗' }));
     }
   };
 
@@ -150,8 +118,6 @@ function AdminApp() {
       updateProduct();
     }
   };
-
-  // ====== Modal 開啟 ======
 
   const openProductModal = (mode, product = null) => {
     setModalMode(mode);
@@ -183,8 +149,6 @@ function AdminApp() {
     setIsDeleteModalOpen(false);
   };
 
-  // ==== 表單 Handler ==========
-
   const handleModalInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setTempProduct((prev) => ({
@@ -198,7 +162,6 @@ function AdminApp() {
     }));
   };
 
-  // 圖片管理
   const handleImageUrlChange = (index, value) => {
     setTempProduct((prev) => {
       const newImagesUrl = [...prev.imagesUrl];
@@ -221,40 +184,18 @@ function AdminApp() {
     }));
   };
 
-  // ===== Render ==========
-
-  if (!isAuthChecked) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container">
-      {/* 標題列 */}
-      <div className="d-flex justify-content-between align-items-center mt-4">
-        <h2>產品列表</h2>
-        <div>
-          <button
-            className="btn btn-primary me-2"
-            onClick={() => openProductModal("create")}
-          >
-            建立新的產品
-          </button>
-          <button
-            className="btn btn-outline-danger"
-            onClick={handleLogout}
-          >
-            登出
-          </button>
-        </div>
+    <>
+      <div className="d-flex justify-content-between align-items-center">
+        <h2>產品管理</h2>
+        <button
+          className="btn btn-primary"
+          onClick={() => openProductModal("create")}
+        >
+          建立新的產品
+        </button>
       </div>
 
-      {/* 產品表格 */}
       <table className="table mt-4">
         <thead>
           <tr>
@@ -311,7 +252,6 @@ function AdminApp() {
 
       <Pagination pagination={pagination} changePage={getProducts} />
 
-      {/* ===== 產品 Modal ===== */}
       <ProductModal
         isOpen={isProductModalOpen}
         onClose={closeProductModal}
@@ -325,15 +265,14 @@ function AdminApp() {
         onProductChange={setTempProduct}
       />
 
-      {/* ===== 刪除確認 Modal ===== */}
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
         onConfirm={deleteProduct}
         productTitle={deleteTarget?.title || ""}
       />
-    </div>
+    </>
   );
 }
 
-export default AdminApp;
+export default AdminProducts;

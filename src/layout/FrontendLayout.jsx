@@ -39,6 +39,12 @@ function FrontendLayout() {
                   購物車
                 </NavLink>
               </li>
+              <li className="nav-item d-flex align-items-center">
+                <span className="text-white-50 mx-2">|</span>
+                <NavLink className="nav-link text-white-50" to="/admin">
+                  前往後台
+                </NavLink>
+              </li>
             </ul>
           </div>
         </div>
