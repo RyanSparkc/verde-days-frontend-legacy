@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { createAsyncMessage } from "../slice/messageReducer";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 function Login() {
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
@@ -44,7 +47,10 @@ function Login() {
       axios.defaults.headers.common["Authorization"] = token;
       navigate("/admin");
     } catch (err) {
-      alert("登入失敗：" + (err.response?.data?.message || err.message));
+      dispatch(createAsyncMessage({
+        success: false,
+        message: "登入失敗：" + (err.response?.data?.message || err.message),
+      }));
     } finally {
       setIsLoading(false);
     }

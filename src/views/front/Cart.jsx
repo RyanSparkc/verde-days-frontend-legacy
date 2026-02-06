@@ -1,12 +1,15 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { currency } from "../../utils/format";
+import { createAsyncMessage } from "../../slice/messageReducer";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
 function Cart() {
+  const dispatch = useDispatch();
   const [cart, setCart] = useState({});
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [loadingItemId, setLoadingItemId] = useState(null);
@@ -72,7 +75,7 @@ function Cart() {
 
   const onSubmit = async (data) => {
     if (!cart?.carts?.length) {
-      alert("購物車沒有商品！");
+      dispatch(createAsyncMessage({ success: false, message: "購物車沒有商品！" }));
       return;
     }
     setIsSubmitting(true);
@@ -88,12 +91,15 @@ function Cart() {
           message: data.message,
         },
       });
-      alert("訂單已送出！");
+      dispatch(createAsyncMessage({ success: true, message: "訂單已送出！" }));
       reset();
       await getCart();
     } catch (error) {
       console.error("送出訂單失敗", error);
-      alert("送出訂單失敗：" + (error.response?.data?.message || error.message));
+      dispatch(createAsyncMessage({
+        success: false,
+        message: "送出訂單失敗：" + (error.response?.data?.message || error.message),
+      }));
     } finally {
       setIsSubmitting(false);
     }

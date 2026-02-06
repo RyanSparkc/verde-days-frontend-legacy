@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { Modal } from "bootstrap";
 import axios from "axios";
+import { createAsyncMessage } from "../slice/messageReducer";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
@@ -17,6 +19,7 @@ function ProductModal({
   onSubmit,
   onProductChange,
 }) {
+  const dispatch = useDispatch();
   const modalRef = useRef(null);
   const modalElRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -67,7 +70,10 @@ function ProductModal({
       const uploadedImageUrl = res.data.imageUrl;
       onProductChange((prev) => ({ ...prev, imageUrl: uploadedImageUrl }));
     } catch (err) {
-      alert("圖片上傳失敗：" + (err.response?.data?.message || err.message));
+      dispatch(createAsyncMessage({
+        success: false,
+        message: "圖片上傳失敗：" + (err.response?.data?.message || err.message),
+      }));
     }
   };
 
