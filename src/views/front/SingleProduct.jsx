@@ -103,14 +103,16 @@ function SingleProduct() {
           {/* 數量選擇器 */}
           <div className="d-flex align-items-center mb-3">
             <button
+              type="button"
               className="btn btn-outline-secondary btn-sm"
               onClick={() => setQty((prev) => Math.max(1, prev - 1))}
-              disabled={isAddingToCart}
+              disabled={isAddingToCart || qty <= 1}
             >
               -
             </button>
             <span className="mx-3 fs-5">{qty}</span>
             <button
+              type="button"
               className="btn btn-outline-secondary btn-sm"
               onClick={() => setQty((prev) => prev + 1)}
               disabled={isAddingToCart}
