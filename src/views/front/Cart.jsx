@@ -1,19 +1,19 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { currency } from "../../utils/format";
 import { createAsyncMessage } from "../../slice/messageReducer";
-
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
+import {
+  deleteCartItem,
+  deleteCartAll,
+  updateCartItem,
+  submitOrder,
+} from "../../slice/cartReducer";
 
 function Cart() {
   const dispatch = useDispatch();
-  const [cart, setCart] = useState({});
-  const [isPageLoading, setIsPageLoading] = useState(true);
-  const [loadingItemId, setLoadingItemId] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { cart, isPageLoading, loadingItemId, isSubmitting } = useSelector(
+    (state) => state.cart
+  );
 
   const {
     register,
@@ -22,92 +22,29 @@ function Cart() {
     reset,
   } = useForm();
 
-  const getCart = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-      setCart(res.data.data);
-    } catch (error) {
-      console.error("取得購物車失敗", error);
-    }
-  };
-
-  const deleteCartItem = async (id) => {
-    setLoadingItemId(id);
-    try {
-      await axios.delete(`${API_BASE}/api/${API_PATH}/cart/${id}`);
-      await getCart();
-    } catch (error) {
-      console.error("刪除購物車項目失敗", error);
-    } finally {
-      setLoadingItemId(null);
-    }
-  };
-
-  const deleteCartAll = async () => {
-    setLoadingItemId("all");
-    try {
-      await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
-      await getCart();
-    } catch (error) {
-      console.error("清空購物車失敗", error);
-    } finally {
-      setLoadingItemId(null);
-    }
-  };
-
-  const updateCartItem = async (id, productId, qty) => {
-    if (qty < 1) return;
-    setLoadingItemId(id);
-    try {
-      await axios.put(`${API_BASE}/api/${API_PATH}/cart/${id}`, {
-        data: {
-          product_id: productId,
-          qty,
-        },
-      });
-      await getCart();
-    } catch (error) {
-      console.error("更新購物車失敗", error);
-    } finally {
-      setLoadingItemId(null);
-    }
-  };
-
   const onSubmit = async (data) => {
     if (!cart?.carts?.length) {
       dispatch(createAsyncMessage({ success: false, message: "購物車沒有商品！" }));
       return;
     }
-    setIsSubmitting(true);
     try {
-      await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
-        data: {
-          user: {
-            name: data.name,
-            email: data.email,
-            tel: data.tel,
-            address: data.address,
-          },
-          message: data.message,
+      await dispatch(submitOrder({
+        user: {
+          name: data.name,
+          email: data.email,
+          tel: data.tel,
+          address: data.address,
         },
-      });
-      dispatch(createAsyncMessage({ success: true, message: "訂單已送出！" }));
+        message: data.message,
+      })).unwrap();
       reset();
-      await getCart();
     } catch (error) {
-      console.error("送出訂單失敗", error);
       dispatch(createAsyncMessage({
         success: false,
-        message: "送出訂單失敗：" + (error.response?.data?.message || error.message),
+        message: "送出訂單失敗：" + (error.message || "未知錯誤"),
       }));
-    } finally {
-      setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    getCart().finally(() => setIsPageLoading(false));
-  }, []);
 
   if (isPageLoading) {
     return (
@@ -129,7 +66,7 @@ function Cart() {
           <button
             className="btn btn-outline-danger"
             type="button"
-            onClick={deleteCartAll}
+            onClick={() => dispatch(deleteCartAll())}
             disabled={loadingItemId === "all"}
           >
             {loadingItemId === "all" ? (
@@ -167,7 +104,7 @@ function Cart() {
                   <button
                     type="button"
                     className="btn btn-outline-danger btn-sm"
-                    onClick={() => deleteCartItem(item.id)}
+                    onClick={() => dispatch(deleteCartItem(item.id))}
                     disabled={loadingItemId === item.id}
                   >
                     {loadingItemId === item.id ? (
@@ -191,11 +128,11 @@ function Cart() {
                       value={item.qty}
                       disabled={loadingItemId === item.id}
                       onChange={(e) =>
-                        updateCartItem(
-                          item.id,
-                          item.product_id,
-                          Number(e.target.value)
-                        )
+                        dispatch(updateCartItem({
+                          id: item.id,
+                          productId: item.product_id,
+                          qty: Number(e.target.value),
+                        }))
                       }
                     />
                     <div className="input-group-text">
