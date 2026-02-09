@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams, Link } from "react-router";
 import { currency } from "../../utils/format";
-import { createAsyncMessage } from "../../slice/messageReducer";
+import { addToCart } from "../../slice/cartReducer";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
@@ -23,16 +23,10 @@ function SingleProduct() {
       .finally(() => setIsLoading(false));
   }, [id]);
 
-  const addToCart = async () => {
+  const handleAddToCart = async () => {
     setIsAddingToCart(true);
     try {
-      await axios.post(`${API_BASE}/api/${API_PATH}/cart`, {
-        data: {
-          product_id: product.id,
-          qty,
-        },
-      });
-      dispatch(createAsyncMessage({ success: true, message: "已加入購物車" }));
+      await dispatch(addToCart({ productId: product.id, qty })).unwrap();
     } catch (error) {
       console.error("加入購物車失敗", error);
     } finally {
@@ -123,7 +117,7 @@ function SingleProduct() {
 
           <button
             className="btn btn-primary btn-lg w-100"
-            onClick={addToCart}
+            onClick={handleAddToCart}
             disabled={isAddingToCart}
           >
             {isAddingToCart ? (

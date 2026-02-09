@@ -1,6 +1,16 @@
 import { Outlet, NavLink } from "react-router";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchCart } from "../slice/cartReducer";
 
 function FrontendLayout() {
+  const dispatch = useDispatch();
+  const carts = useSelector((state) => state.cart.cart.carts);
+
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]);
+
   return (
     <>
       <nav
@@ -35,8 +45,13 @@ function FrontendLayout() {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link text-white" to="/cart">
+                <NavLink className="nav-link text-white position-relative" to="/cart">
                   購物車
+                  {carts.length > 0 && (
+                    <span className="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
+                      {carts.length}
+                    </span>
+                  )}
                 </NavLink>
               </li>
               <li className="nav-item d-flex align-items-center">
