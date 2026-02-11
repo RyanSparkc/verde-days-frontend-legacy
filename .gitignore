@@ -28,3 +28,6 @@ dist-ssr
 .env.local
 .env.*.local
 docs
+
+# Windows Zone.Identifier files (WSL)
+*:Zone.Identifier
