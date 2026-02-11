@@ -1,14 +1,8 @@
-import { RouterProvider } from "react-router";
-import { router } from "./router";
-import MessageToast from "./component/MessageToast";
+import { RouterProvider } from 'react-router';
+import { router } from './router';
 
 function App() {
-  return (
-    <>
-      <MessageToast />
-      <RouterProvider router={router} />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

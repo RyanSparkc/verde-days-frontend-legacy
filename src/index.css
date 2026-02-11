@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* ===== Verde Days 品牌配色 ===== */
+@theme {
+  /* 主色系 - 莫蘭迪綠 */
+  --color-brand: #7D8B6F;
+  --color-brand-dark: #5C6B4A;
+  --color-brand-light: #A8B99A;
+
+  /* 背景色 */
+  --color-cream: #FAF8F5;
+  --color-card: #FFFFFF;
+
+  /* 文字色 */
+  --color-text-primary: #2C2C2C;
+  --color-text-secondary: #6B6B6B;
+
+  /* 點綴色 */
+  --color-terracotta: #C4A484;
+  --color-error: #C45B4A;
+
+  /* 字體 */
+  --font-serif-en: "Cormorant Garamond", serif;
+  --font-serif-tc: "Noto Serif TC", serif;
+  --font-sans-en: "Inter", sans-serif;
+  --font-sans-tc: "Noto Sans TC", sans-serif;
+  --font-display: "Cormorant Garamond", "Noto Serif TC", serif;
+  --font-body: "Inter", "Noto Sans TC", sans-serif;
+}
+
+/* ===== 全域基底樣式 ===== */
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: var(--color-text-primary);
+}
