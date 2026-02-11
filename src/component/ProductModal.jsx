@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Modal } from "bootstrap";
 import axios from "axios";
@@ -23,7 +23,9 @@ function ProductModal({
   const modalRef = useRef(null);
   const modalElRef = useRef(null);
   const fileInputRef = useRef(null);
+  const subImageInputRef = useRef(null);
   const onCloseRef = useRef(onClose);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -75,6 +77,43 @@ function ProductModal({
         message: "圖片上傳失敗：" + (err.response?.data?.message || err.message),
       }));
     }
+  };
+
+  const handleSubImageUpload = async (e) => {
+    const files = [...(e.target.files || [])];
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+    const uploadedUrls = [];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file-to-upload", file);
+      try {
+        const res = await axios.post(
+          `${API_BASE}/api/${API_PATH}/admin/upload`,
+          formData
+        );
+        uploadedUrls.push(res.data.imageUrl);
+      } catch (err) {
+        dispatch(createAsyncMessage({
+          success: false,
+          message: `「${file.name}」上傳失敗：` + (err.response?.data?.message || err.message),
+        }));
+      }
+    }
+
+    if (uploadedUrls.length > 0) {
+      onProductChange((prev) => ({
+        ...prev,
+        imagesUrl: [...prev.imagesUrl, ...uploadedUrls],
+      }));
+    }
+
+    if (subImageInputRef.current) {
+      subImageInputRef.current.value = "";
+    }
+    setIsUploading(false);
   };
 
   return (
@@ -141,6 +180,14 @@ function ProductModal({
                 )}
 
                 <h6>多圖管理</h6>
+                <input
+                  type="file"
+                  className="d-none"
+                  accept=".jpg,.jpeg,.png"
+                  multiple
+                  ref={subImageInputRef}
+                  onChange={handleSubImageUpload}
+                />
                 {tempProduct.imagesUrl?.map((url, index) => (
                   <div key={index} className="mb-2">
                     <input
@@ -166,19 +213,41 @@ function ProductModal({
                     </button>
                   </div>
                 ))}
-                {tempProduct.imagesUrl.length < 5 &&
-                  (tempProduct.imagesUrl.length === 0 ||
-                    tempProduct.imagesUrl[
-                      tempProduct.imagesUrl.length - 1
-                    ] !== "") && (
+                {tempProduct.imagesUrl.length < 5 && (
+                  <div className="d-flex gap-1 mt-1">
+                    {(tempProduct.imagesUrl.length === 0 ||
+                      tempProduct.imagesUrl[
+                        tempProduct.imagesUrl.length - 1
+                      ] !== "") && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary btn-sm flex-grow-1"
+                        onClick={onAddImage}
+                      >
+                        新增圖片
+                      </button>
+                    )}
                     <button
                       type="button"
-                      className="btn btn-outline-primary btn-sm d-block w-100 mt-1"
-                      onClick={onAddImage}
+                      className="btn btn-outline-success btn-sm flex-grow-1"
+                      disabled={isUploading}
+                      onClick={() => subImageInputRef.current?.click()}
                     >
-                      新增圖片
+                      {isUploading ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm me-1"
+                            role="status"
+                            aria-hidden="true"
+                          />
+                          上傳中...
+                        </>
+                      ) : (
+                        "上傳圖片"
+                      )}
                     </button>
-                  )}
+                  </div>
+                )}
               </div>
 
               {/* 右欄：產品資訊 */}
