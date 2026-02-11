@@ -1,6 +1,7 @@
 import { createHashRouter } from 'react-router';
 import FrontendLayout from './components/layout/FrontendLayout';
 import Home from './pages/Home';
+import Products from './pages/Products';
 
 function Placeholder({ name }) {
   return (
@@ -16,7 +17,7 @@ export const router = createHashRouter([
     element: <FrontendLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'products', element: <Placeholder name="所有植物" /> },
+      { path: 'products', element: <Products /> },
       { path: 'product/:id', element: <Placeholder name="商品詳情" /> },
       { path: 'cart', element: <Placeholder name="購物車" /> },
       { path: 'checkout/success/:orderId', element: <Placeholder name="結帳成功" /> },
