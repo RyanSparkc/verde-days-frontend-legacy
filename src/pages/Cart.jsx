@@ -2,8 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Trash2, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react';
-import { fetchCart, updateCartItem, deleteCartItem, deleteCartAll } from '@/slice/cartReducer';
+import { ChevronLeft, Trash2, Minus, Plus, ShoppingBag, Loader2, TicketPercent } from 'lucide-react';
+import {
+  fetchCart,
+  updateCartItem,
+  deleteCartItem,
+  deleteCartAll,
+  applyCoupon,
+} from '@/slice/cartReducer';
 import { ease } from '@/constants/motion';
 import { currency } from '@/utils/format';
 
@@ -105,6 +111,58 @@ function EmptyCart() {
         ))}
       </div>
     </motion.div>
+  );
+}
+
+function CouponForm({ isApplying, onApply }) {
+  const [couponCode, setCouponCode] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const normalizedCode = couponCode.trim().toUpperCase();
+    if (!normalizedCode || isApplying) return;
+
+    onApply(normalizedCode)
+      .unwrap()
+      .then(() => {
+        setCouponCode('');
+      })
+      .catch(() => {});
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-6 rounded-xl border border-brand-light/25 bg-cream/50 p-4">
+      <div className="flex items-center gap-2 text-sm text-text-primary">
+        <TicketPercent size={15} strokeWidth={1.6} className="text-brand" />
+        優惠券
+      </div>
+      <div className="mt-3 flex items-center gap-2">
+        <input
+          type="text"
+          value={couponCode}
+          onChange={(e) => setCouponCode(e.target.value)}
+          placeholder="輸入優惠碼"
+          disabled={isApplying}
+          className="h-10 flex-1 rounded-full border border-brand-light/40 bg-white px-4 text-sm text-text-primary outline-none placeholder:text-text-secondary/50 focus:border-brand disabled:opacity-60"
+        />
+        <button
+          type="submit"
+          disabled={isApplying || couponCode.trim().length === 0}
+          className="inline-flex h-10 min-w-20 items-center justify-center rounded-full bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isApplying ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+            </>
+          ) : (
+            '套用'
+          )}
+        </button>
+      </div>
+      <p className="mt-2 text-xs text-text-secondary">
+        測試碼：DISCOUNT80
+      </p>
+    </form>
   );
 }
 
@@ -223,7 +281,7 @@ function CartItemCard({ item, loadingItemId, dispatch }) {
 export default function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { cart, isPageLoading, loadingItemId } = useSelector((state) => state.cart);
+  const { cart, isPageLoading, loadingItemId, isApplyingCoupon } = useSelector((state) => state.cart);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const isClearingAll = loadingItemId === 'all';
 
@@ -315,6 +373,11 @@ export default function Cart() {
                 <h2 className="font-display text-lg font-light text-text-primary">
                   訂單摘要
                 </h2>
+
+                <CouponForm
+                  isApplying={isApplyingCoupon}
+                  onApply={(code) => dispatch(applyCoupon({ code }))}
+                />
 
                 <div className="mt-6 space-y-3">
                   {/* 小計 */}

@@ -13,6 +13,7 @@ const initialState = {
   isPageLoading: true,
   loadingItemId: null,
   isSubmitting: false,
+  isApplyingCoupon: false,
 };
 
 export const fetchCart = createAsyncThunk(
@@ -100,6 +101,34 @@ export const deleteCartAll = createAsyncThunk(
   },
 );
 
+export const applyCoupon = createAsyncThunk(
+  'cart/applyCoupon',
+  async ({ code }, { dispatch, rejectWithValue }) => {
+    const normalizedCode = code?.trim()?.toUpperCase();
+    if (!normalizedCode) {
+      const message = '請輸入優惠碼';
+      dispatch(createAsyncMessage({ success: false, message }));
+      return rejectWithValue(message);
+    }
+
+    dispatch(setApplyingCoupon(true));
+    try {
+      await axios.post(`${API_BASE}/api/${API_PATH}/coupon`, {
+        data: { code: normalizedCode },
+      });
+      dispatch(createAsyncMessage({ success: true, message: `已套用優惠券：${normalizedCode}` }));
+      await dispatch(fetchCart()).unwrap();
+      return normalizedCode;
+    } catch (error) {
+      const message = getErrorMessage(error, '套用優惠券失敗');
+      dispatch(createAsyncMessage({ success: false, message }));
+      return rejectWithValue(message);
+    } finally {
+      dispatch(setApplyingCoupon(false));
+    }
+  },
+);
+
 export const submitOrder = createAsyncThunk(
   'cart/submitOrder',
   async (orderData, { dispatch, rejectWithValue }) => {
@@ -137,9 +166,18 @@ const cartSlice = createSlice({
     setSubmitting(state, action) {
       state.isSubmitting = action.payload;
     },
+    setApplyingCoupon(state, action) {
+      state.isApplyingCoupon = action.payload;
+    },
   },
 });
 // redux 繞來繞去繞來繞去= ="
-export const { setCart, setPageLoading, setLoadingItemId, setSubmitting } =
+export const {
+  setCart,
+  setPageLoading,
+  setLoadingItemId,
+  setSubmitting,
+  setApplyingCoupon,
+} =
   cartSlice.actions;
 export default cartSlice.reducer;
