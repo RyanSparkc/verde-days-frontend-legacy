@@ -7,6 +7,7 @@ import { ShoppingBag, Menu, X, UserRound } from 'lucide-react';
 const navLinks = [
   { to: '/', label: '首頁' },
   { to: '/products', label: '所有植物' },
+  { to: '/orders', label: '我的訂單' },
   { to: '/articles', label: '植物日誌' },
   { to: '/about', label: '關於我們' },
 ];

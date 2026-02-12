@@ -3,6 +3,7 @@ import { Leaf } from 'lucide-react';
 
 const quickLinks = [
   { to: '/products', label: '所有植物' },
+  { to: '/orders', label: '我的訂單' },
   { to: '/articles', label: '植物日誌' },
   { to: '/about', label: '關於我們' },
   { to: '/cart', label: '購物車' },

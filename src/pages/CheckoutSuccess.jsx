@@ -39,6 +39,14 @@ export default function CheckoutSuccess() {
             >
               回到首頁
             </Link>
+            {orderId && (
+              <Link
+                to={`/order/${orderId}`}
+                className="rounded-full border border-brand-light/40 px-6 py-2.5 text-sm text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-brand-dark"
+              >
+                查看訂單
+              </Link>
+            )}
             <Link
               to="/products"
               className="rounded-full border border-brand-light/40 px-6 py-2.5 text-sm text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-brand-dark"
