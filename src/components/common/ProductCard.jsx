@@ -1,15 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
-
-const categoryLabel = {
-  foliage: '觀葉植物',
-  succulent: '多肉植物',
-  airplant: '空氣鳳梨',
-  giftset: '植栽禮盒',
-  accessories: '盆器配件',
-};
+import { categoryLabel } from '@/constants/categories';
 
 export default function ProductCard({ product, index = 0 }) {
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -17,19 +13,28 @@ export default function ProductCard({ product, index = 0 }) {
       viewport={{ once: true, amount: 0.2 }}
       transition={{
         duration: 0.6,
-        delay: index * 0.05,
+        delay: (index % 4) * 0.06,
         ease: [0.22, 1, 0.36, 1],
       }}
     >
       <Link to={`/product/${product.id}`} className="group block">
         {/* 圖片 */}
         <div className="relative overflow-hidden rounded-xl bg-white">
-          <div className="aspect-square">
+          <div className="relative aspect-square">
+            {/* 骨架屏：始終存在於 DOM，靠 opacity 淡出 */}
+            <div
+              className={`absolute inset-0 z-10 animate-pulse bg-brand-light/30 transition-opacity duration-500 ${
+                loaded ? 'pointer-events-none opacity-0' : 'opacity-100'
+              }`}
+            />
             <img
               src={product.imageUrl}
               alt={product.title}
-              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className={`h-full w-full object-cover transition-opacity duration-500 ease-out group-hover:scale-105 group-hover:transition-transform group-hover:duration-700 ${
+                loaded ? 'opacity-100' : 'opacity-0'
+              }`}
               loading="lazy"
+              onLoad={() => setLoaded(true)}
             />
           </div>
           {/* 分類 tag */}

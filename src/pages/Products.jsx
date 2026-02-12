@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import axios from 'axios';
 import ProductCard from '@/components/common/ProductCard';
+import { ease } from '@/constants/motion';
+import { toProductList } from '@/utils/api';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
@@ -24,8 +26,6 @@ const categoryOrder = {
   giftset: 3,
   accessories: 4,
 };
-
-const ease = [0.22, 1, 0.36, 1];
 
 function SkeletonCard() {
   return (
@@ -56,9 +56,7 @@ export default function Products() {
           `${API_BASE}/api/${API_PATH}/products/all`,
         );
         if (data.success) {
-          const list = Array.isArray(data.products)
-            ? data.products
-            : Object.values(data.products);
+          const list = toProductList(data.products);
 
           // 按分類權重排序
           const sorted = list

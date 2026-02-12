@@ -3,6 +3,8 @@ import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import axios from 'axios';
 import ProductCard from '@/components/common/ProductCard';
+import { ease } from '@/constants/motion';
+import { toProductList } from '@/utils/api';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
@@ -18,9 +20,7 @@ export default function FeaturedProducts() {
         );
         if (data.success) {
           // 取前 4 筆作為精選
-          const list = Array.isArray(data.products)
-            ? data.products
-            : Object.values(data.products);
+          const list = toProductList(data.products);
           setProducts(list.filter((p) => p.is_enabled).slice(0, 4));
         }
       } catch (err) {
@@ -37,7 +37,7 @@ export default function FeaturedProducts() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.7, ease }}
           className="mb-12 flex items-end justify-between"
         >
           <div>

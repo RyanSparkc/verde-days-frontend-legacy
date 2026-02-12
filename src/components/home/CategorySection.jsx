@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
+import { ease } from '@/constants/motion';
 
 const base = import.meta.env.BASE_URL;
 
@@ -45,7 +46,7 @@ function CategoryCard({ category, index }) {
       transition={{
         duration: 0.6,
         delay: index * 0.08,
-        ease: [0.22, 1, 0.36, 1],
+        ease,
       }}
     >
       <Link
@@ -88,7 +89,7 @@ export default function CategorySection() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.7, ease }}
           className="mb-12 text-center"
         >
           <p className="font-display text-xs uppercase tracking-[0.3em] text-brand">
