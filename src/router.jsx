@@ -7,7 +7,7 @@ const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
-const AdminArticlesPending = lazy(() => import('./pages/admin/AdminArticlesPending'));
+const AdminArticles = lazy(() => import('./pages/admin/AdminArticles'));
 const Home = lazy(() => import('./pages/Home'));
 const Products = lazy(() => import('./pages/Products'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -67,7 +67,7 @@ export const router = createHashRouter([
       { path: 'products', element: withRouteSuspense(AdminProducts) },
       { path: 'orders', element: withRouteSuspense(AdminOrders) },
       { path: 'coupons', element: withRouteSuspense(AdminCoupons) },
-      { path: 'articles', element: withRouteSuspense(AdminArticlesPending) },
+      { path: 'articles', element: withRouteSuspense(AdminArticles) },
     ],
   },
   { path: '*', element: renderPlaceholder('404 — 找不到頁面') },
