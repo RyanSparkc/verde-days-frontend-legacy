@@ -184,7 +184,7 @@ export default function Checkout() {
                         x{item.qty}
                       </p>
                     </div>
-                    <span className="flex-shrink-0 font-display text-sm text-text-primary">
+                    <span className="flex-shrink-0 text-sm font-medium text-text-primary">
                       NT${currency(item.final_total)}
                     </span>
                   </div>
@@ -213,7 +213,7 @@ export default function Checkout() {
                 {/* 合計 */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-text-primary">合計</span>
-                  <span className="font-display text-xl text-brand-dark">
+                  <span className="text-xl font-medium text-brand-dark">
                     NT${currency(cart.final_total)}
                   </span>
                 </div>
