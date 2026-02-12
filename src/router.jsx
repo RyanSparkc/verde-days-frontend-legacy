@@ -3,6 +3,9 @@ import FrontendLayout from './components/layout/FrontendLayout';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import CheckoutSuccess from './pages/CheckoutSuccess';
 
 function Placeholder({ name }) {
   return (
@@ -20,8 +23,9 @@ export const router = createHashRouter([
       { index: true, element: <Home /> },
       { path: 'products', element: <Products /> },
       { path: 'product/:id', element: <ProductDetail /> },
-      { path: 'cart', element: <Placeholder name="購物車" /> },
-      { path: 'checkout/success/:orderId', element: <Placeholder name="結帳成功" /> },
+      { path: 'cart', element: <Cart /> },
+      { path: 'checkout', element: <Checkout /> },
+      { path: 'checkout/success/:orderId', element: <CheckoutSuccess /> },
       { path: 'orders', element: <Placeholder name="我的訂單" /> },
       { path: 'order/:id', element: <Placeholder name="訂單詳情" /> },
       { path: 'articles', element: <Placeholder name="植物日誌" /> },
