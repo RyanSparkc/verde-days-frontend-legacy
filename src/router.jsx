@@ -11,6 +11,8 @@ const CheckoutSuccess = lazy(() => import('./pages/CheckoutSuccess'));
 const Orders = lazy(() => import('./pages/Orders'));
 const OrderDetail = lazy(() => import('./pages/OrderDetail'));
 const About = lazy(() => import('./pages/About'));
+const Articles = lazy(() => import('./pages/Articles'));
+const ArticleDetail = lazy(() => import('./pages/ArticleDetail'));
 
 const routeFallback = (
   <div className="flex min-h-screen items-center justify-center font-display text-xl text-brand">
@@ -45,8 +47,8 @@ export const router = createHashRouter([
       { path: 'checkout/success/:orderId', element: withRouteSuspense(CheckoutSuccess) },
       { path: 'orders', element: withRouteSuspense(Orders) },
       { path: 'order/:id', element: withRouteSuspense(OrderDetail) },
-      { path: 'articles', element: renderPlaceholder('植物日誌') },
-      { path: 'article/:id', element: renderPlaceholder('文章內容') },
+      { path: 'articles', element: withRouteSuspense(Articles) },
+      { path: 'article/:id', element: withRouteSuspense(ArticleDetail) },
       { path: 'about', element: withRouteSuspense(About) },
     ],
   },

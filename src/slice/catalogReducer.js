@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { toProductList } from '@/utils/api';
+import { listArticles } from '@/services/articleService';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
@@ -70,12 +71,7 @@ export const fetchArticlesIfNeeded = createAsyncThunk(
 
     dispatch(setArticlesLoading(true));
     try {
-      const { data } = await axios.get(`${API_BASE}/api/${API_PATH}/articles`);
-      if (!data.success) {
-        throw new Error('載入文章失敗');
-      }
-
-      const list = Array.isArray(data.articles) ? data.articles : [];
+      const list = await listArticles();
       dispatch(setArticlesList(list));
       dispatch(setArticlesFetchedAt(Date.now()));
       return list;
