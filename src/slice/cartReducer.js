@@ -68,12 +68,13 @@ export const submitOrder = createAsyncThunk(
   'cart/submitOrder',
   async (orderData, { dispatch }) => {
     dispatch(setSubmitting(true));
-    await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
+    const res = await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
       data: orderData,
     });
     dispatch(createAsyncMessage({ success: true, message: '訂單已送出！' }));
     await dispatch(fetchCart());
     dispatch(setSubmitting(false));
+    return { orderId: res.data.orderId };
   },
 );
 
