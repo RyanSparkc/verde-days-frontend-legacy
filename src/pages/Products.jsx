@@ -1,13 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'motion/react';
-import axios from 'axios';
 import ProductCard from '@/components/common/ProductCard';
+import { fetchProductsAllIfNeeded } from '@/slice/catalogReducer';
 import { ease } from '@/constants/motion';
-import { toProductList } from '@/utils/api';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
 
 const categories = [
   { key: '', label: '全部', en: 'All' },
@@ -40,46 +37,34 @@ function SkeletonCard() {
 }
 
 export default function Products() {
+  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [allProducts, setAllProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { productsAll, isProductsLoading } = useSelector((state) => state.catalog);
 
   const currentCategory = searchParams.get('category') || '';
   const activeCat = categories.find((c) => c.key === currentCategory) || categories[0];
 
-  // 一次拉全部商品
   useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      try {
-        const { data } = await axios.get(
-          `${API_BASE}/api/${API_PATH}/products/all`,
-        );
-        if (data.success) {
-          const list = toProductList(data.products);
+    dispatch(fetchProductsAllIfNeeded());
+  }, [dispatch]);
 
-          // 按分類權重排序
-          const sorted = list
-            .filter((p) => p.is_enabled)
-            .sort((a, b) => (categoryOrder[a.category] ?? 99) - (categoryOrder[b.category] ?? 99));
+  const sortedProducts = useMemo(
+    () =>
+      [...productsAll].sort(
+        (a, b) => (categoryOrder[a.category] ?? 99) - (categoryOrder[b.category] ?? 99),
+      ),
+    [productsAll],
+  );
 
-          setAllProducts(sorted);
-        }
-      } catch (err) {
-        console.error('Failed to fetch products', err);
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, []);
+  const isLoading = isProductsLoading && productsAll.length === 0;
 
   // 前端篩選分類
   const filteredProducts = useMemo(
     () =>
       currentCategory
-        ? allProducts.filter((p) => p.category === currentCategory)
-        : allProducts,
-    [allProducts, currentCategory],
+        ? sortedProducts.filter((p) => p.category === currentCategory)
+        : sortedProducts,
+    [sortedProducts, currentCategory],
   );
 
   const handleCategoryChange = (key) => {

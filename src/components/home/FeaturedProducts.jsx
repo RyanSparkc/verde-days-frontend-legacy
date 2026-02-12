@@ -1,33 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'motion/react';
-import axios from 'axios';
 import ProductCard from '@/components/common/ProductCard';
+import { fetchProductsAllIfNeeded } from '@/slice/catalogReducer';
 import { ease } from '@/constants/motion';
-import { toProductList } from '@/utils/api';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
 
 export default function FeaturedProducts() {
-  const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
+  const { productsAll } = useSelector((state) => state.catalog);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await axios.get(
-          `${API_BASE}/api/${API_PATH}/products/all`,
-        );
-        if (data.success) {
-          // 取前 4 筆作為精選
-          const list = toProductList(data.products);
-          setProducts(list.filter((p) => p.is_enabled).slice(0, 4));
-        }
-      } catch (err) {
-        console.error('Failed to fetch featured products', err);
-      }
-    })();
-  }, []);
+    dispatch(fetchProductsAllIfNeeded());
+  }, [dispatch]);
+
+  const products = useMemo(() => productsAll.slice(0, 4), [productsAll]);
 
   return (
     <section className="bg-cream py-24 md:py-32">

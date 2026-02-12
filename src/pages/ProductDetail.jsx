@@ -4,10 +4,10 @@ import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'motion/react';
 import axios from 'axios';
 import { addToCart } from '@/slice/cartReducer';
+import { fetchProductsAllIfNeeded } from '@/slice/catalogReducer';
 import ProductCard from '@/components/common/ProductCard';
 import { categoryLabel } from '@/constants/categories';
 import { ease } from '@/constants/motion';
-import { toProductList } from '@/utils/api';
 import {
   ChevronLeft,
   Sun,
@@ -243,50 +243,59 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
-  // 取得單一商品
   useEffect(() => {
-    const fetchProduct = async () => {
+    let isCurrentRequest = true;
+
+    const fetchProductAndRelated = async () => {
       setIsLoading(true);
       setQty(1);
+      setProduct(null);
+      setRelatedProducts([]);
+
       try {
-        const { data } = await axios.get(
-          `${API_BASE}/api/${API_PATH}/product/${id}`,
-        );
-        if (data.success) {
-          setProduct(data.product);
+        const productRequest = axios.get(`${API_BASE}/api/${API_PATH}/product/${id}`);
+        const allProductsRequest = dispatch(fetchProductsAllIfNeeded())
+          .unwrap()
+          .catch((error) => {
+            console.error('Failed to fetch product list for related products', error);
+            return [];
+          });
+
+        const [{ data }, allProducts] = await Promise.all([productRequest, allProductsRequest]);
+
+        if (!isCurrentRequest) return;
+
+        if (!data.success) {
+          setProduct(null);
+          return;
         }
+
+        const nextProduct = data.product;
+        setProduct(nextProduct);
+
+        const related = allProducts
+          .filter((p) => p.category === nextProduct.category && p.id !== id)
+          .slice(0, 4);
+        setRelatedProducts(related);
       } catch (err) {
-        console.error('Failed to fetch product', err);
+        if (!isCurrentRequest) return;
+        console.error('Failed to fetch product detail', err);
+        setProduct(null);
+        setRelatedProducts([]);
       } finally {
-        setIsLoading(false);
+        if (isCurrentRequest) {
+          setIsLoading(false);
+        }
       }
     };
 
-    fetchProduct();
+    fetchProductAndRelated();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
 
-  // 取得相關商品（同分類）
-  useEffect(() => {
-    if (!product?.category) return;
-
-    (async () => {
-      try {
-        const { data } = await axios.get(
-          `${API_BASE}/api/${API_PATH}/products/all`,
-        );
-        if (data.success) {
-          const list = toProductList(data.products);
-          const related = list
-            .filter((p) => p.is_enabled && p.category === product.category && p.id !== id)
-            .slice(0, 4);
-          setRelatedProducts(related);
-        }
-      } catch (err) {
-        console.error('Failed to fetch related products', err);
-      }
-    })();
-  }, [product?.category, id]);
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [id, dispatch]);
 
   const handleAddToCart = async () => {
     setIsAdding(true);
@@ -391,7 +400,7 @@ export default function ProductDetail() {
               transition={{ duration: 0.5, delay: 0.25, ease }}
               className="mt-6 flex items-baseline gap-3"
             >
-              <span className="font-display text-2xl text-brand-dark">
+              <span className="text-2xl text-brand-dark">
                 NT${product.price.toLocaleString()}
               </span>
               {product.origin_price > product.price && (

@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'motion/react';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
+import { fetchArticlesIfNeeded } from '@/slice/catalogReducer';
 
 function ArticleCard({ article, index }) {
   const date = article.create_at
@@ -73,24 +71,17 @@ function ArticleCard({ article, index }) {
 }
 
 export default function ArticlesPreview() {
-  const [articles, setArticles] = useState([]);
+  const dispatch = useDispatch();
+  const { articlesList, isArticlesLoading } = useSelector((state) => state.catalog);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await axios.get(
-          `${API_BASE}/api/${API_PATH}/articles`,
-        );
-        if (data.success) {
-          setArticles(data.articles.slice(0, 3));
-        }
-      } catch (err) {
-        console.error('Failed to fetch articles', err);
-      }
-    })();
-  }, []);
+    dispatch(fetchArticlesIfNeeded());
+  }, [dispatch]);
+
+  const articles = useMemo(() => articlesList.slice(0, 3), [articlesList]);
 
   // 沒有文章時不顯示此區塊
+  if (isArticlesLoading && articles.length === 0) return null;
   if (articles.length === 0) return null;
 
   return (
