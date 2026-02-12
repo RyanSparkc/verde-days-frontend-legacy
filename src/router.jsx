@@ -6,7 +6,7 @@ const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
-const AdminCouponsPending = lazy(() => import('./pages/admin/AdminCouponsPending'));
+const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminArticlesPending = lazy(() => import('./pages/admin/AdminArticlesPending'));
 const Home = lazy(() => import('./pages/Home'));
 const Products = lazy(() => import('./pages/Products'));
@@ -66,7 +66,7 @@ export const router = createHashRouter([
       { index: true, element: withRouteSuspense(AdminProducts) },
       { path: 'products', element: withRouteSuspense(AdminProducts) },
       { path: 'orders', element: withRouteSuspense(AdminOrders) },
-      { path: 'coupons', element: withRouteSuspense(AdminCouponsPending) },
+      { path: 'coupons', element: withRouteSuspense(AdminCoupons) },
       { path: 'articles', element: withRouteSuspense(AdminArticlesPending) },
     ],
   },
