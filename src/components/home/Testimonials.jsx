@@ -115,7 +115,7 @@ export default function Testimonials() {
                   key={review.name}
                   className="min-w-0 flex-[0_0_100%] pl-4 md:flex-[0_0_33.333%] md:pl-6"
                 >
-                  <blockquote className="relative flex h-full flex-col rounded-2xl bg-white px-8 pb-8 pt-12 shadow-sm">
+                  <blockquote className="relative flex h-full flex-col rounded-2xl border border-brand-light/15 bg-white px-8 pb-8 pt-12">
                     {/* 裝飾引號 */}
                     <span
                       className="absolute top-4 left-6 font-display text-6xl leading-none text-brand-light/20 select-none"

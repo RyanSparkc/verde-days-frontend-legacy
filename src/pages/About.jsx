@@ -45,7 +45,7 @@ function ValueCard({ icon: Icon, title, description, index }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.55, delay: index * 0.08, ease }}
-      className="rounded-2xl border border-brand-light/20 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+      className="rounded-2xl border border-brand-light/20 bg-white p-6 transition-colors hover:border-brand-light/35"
     >
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-light/25 text-brand-dark">
         <Icon size={18} strokeWidth={1.7} />
@@ -101,7 +101,7 @@ export default function About() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, ease }}
-          className="relative overflow-hidden rounded-3xl border border-brand-light/20 bg-white shadow-[0_14px_44px_rgba(92,107,74,0.12)]"
+          className="relative overflow-hidden rounded-3xl border border-brand-light/20 bg-white shadow-[0_10px_30px_rgba(92,107,74,0.09)]"
         >
           <motion.img
             src={aboutImages.hero}
@@ -178,7 +178,7 @@ export default function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.35 }}
           transition={{ duration: 0.55, ease }}
-          className="mt-10 grid gap-3 rounded-2xl border border-brand-light/20 bg-white/80 p-4 shadow-sm md:mt-12 md:grid-cols-3 md:p-5"
+          className="mt-10 grid gap-3 rounded-2xl border border-brand-light/20 bg-white/80 p-4 md:mt-12 md:grid-cols-3 md:p-5"
         >
           {highlights.map((item) => (
             <motion.div

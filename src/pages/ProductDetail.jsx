@@ -428,7 +428,7 @@ export default function ProductDetail() {
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-sm font-medium tracking-wide text-white transition-all duration-300 hover:bg-brand-dark hover:shadow-md disabled:pointer-events-none disabled:opacity-60"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-sm font-medium tracking-wide text-white transition-all duration-300 hover:bg-brand-dark disabled:pointer-events-none disabled:opacity-60"
               >
                 {isAdding ? (
                   <Loader2 size={16} className="animate-spin" />

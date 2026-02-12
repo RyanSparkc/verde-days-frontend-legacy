@@ -35,7 +35,7 @@ export default function CheckoutSuccess() {
           <div className="mt-8 flex gap-3">
             <Link
               to="/"
-              className="rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:bg-brand-dark hover:shadow-md"
+              className="rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:bg-brand-dark"
             >
               回到首頁
             </Link>

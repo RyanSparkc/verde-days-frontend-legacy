@@ -63,7 +63,7 @@ function ArticleCard({ article, index }) {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.55, delay: index * 0.08, ease }}
-      className="group overflow-hidden rounded-2xl border border-brand-light/25 bg-white/90 shadow-[0_10px_28px_rgba(92,107,74,0.08)]"
+      className="group overflow-hidden rounded-2xl border border-brand-light/25 bg-white/90 shadow-[0_6px_20px_rgba(92,107,74,0.05)]"
     >
       <Link to={`/article/${article.id}`} className="block">
         <div className="relative aspect-[16/10] overflow-hidden">
@@ -181,7 +181,7 @@ export default function Articles() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, ease }}
-            className="group relative mb-10 overflow-hidden rounded-3xl border border-brand-light/25 shadow-[0_16px_44px_rgba(92,107,74,0.14)] md:mb-12"
+            className="group relative mb-10 overflow-hidden rounded-3xl border border-brand-light/25 shadow-[0_10px_30px_rgba(92,107,74,0.1)] md:mb-12"
           >
             <Link to={`/article/${featuredArticle.id}`} className="block">
               <div className="grid min-h-[320px] md:grid-cols-[1.15fr_0.85fr]">

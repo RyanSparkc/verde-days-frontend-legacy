@@ -59,7 +59,7 @@ export default function Navbar() {
       <header
         className={`fixed top-0 right-0 left-0 z-50 transition-all duration-500 ${
           scrolled
-            ? 'bg-cream/80 shadow-sm backdrop-blur-md'
+            ? 'border-b border-brand-light/20 bg-cream/80 backdrop-blur-md'
             : 'bg-transparent'
         }`}
       >
@@ -148,7 +148,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 z-50 flex h-full w-72 flex-col bg-cream shadow-xl"
+              className="fixed top-0 right-0 z-50 flex h-full w-72 flex-col border-l border-brand-light/20 bg-cream"
             >
               {/* 關閉按鈕 */}
               <div className="flex h-16 items-center justify-end px-6">

@@ -33,7 +33,7 @@ export default function Pagination({ pagination, onPageChange }) {
           onClick={() => onPageChange(page)}
           className={`relative flex h-9 w-9 items-center justify-center rounded-full text-sm transition-all duration-300 ${
             page === current_page
-              ? 'bg-brand font-medium text-white shadow-sm'
+              ? 'bg-brand font-medium text-white'
               : 'text-text-secondary hover:bg-white hover:text-brand-dark'
           }`}
           aria-label={`第 ${page} 頁`}

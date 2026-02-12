@@ -81,7 +81,7 @@ function EmptyCart() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease }}
-      className="mx-auto mt-6 flex w-full max-w-xl flex-col items-center rounded-2xl border border-brand-light/20 bg-white/75 px-8 py-12 text-center shadow-sm md:mt-10"
+      className="mx-auto mt-6 flex w-full max-w-xl flex-col items-center rounded-2xl border border-brand-light/20 bg-white/75 px-8 py-12 text-center md:mt-10"
     >
       <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brand-light/20">
         <ShoppingBag size={36} strokeWidth={1.2} className="text-brand" />
@@ -94,7 +94,7 @@ function EmptyCart() {
       </p>
       <Link
         to="/products"
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-10 py-3 text-sm font-medium tracking-[0.08em] text-white transition-all duration-300 hover:scale-[1.02] hover:bg-brand-dark hover:shadow-md"
+        className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-10 py-3 text-sm font-medium tracking-[0.08em] text-white transition-all duration-300 hover:scale-[1.02] hover:bg-brand-dark"
       >
         去逛逛
       </Link>
@@ -409,7 +409,7 @@ export default function Cart() {
                 {/* 前往結帳按鈕 */}
                 <button
                   onClick={() => navigate('/checkout')}
-                  className="mt-6 flex w-full cursor-pointer items-center justify-center rounded-full bg-brand py-3.5 text-sm font-medium tracking-wide text-white transition-all duration-300 hover:bg-brand-dark hover:shadow-md"
+                  className="mt-6 flex w-full cursor-pointer items-center justify-center rounded-full bg-brand py-3.5 text-sm font-medium tracking-wide text-white transition-all duration-300 hover:bg-brand-dark"
                 >
                   前往結帳
                 </button>

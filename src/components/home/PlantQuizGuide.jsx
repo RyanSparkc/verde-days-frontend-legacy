@@ -65,7 +65,7 @@ export default function PlantQuizGuide() {
             >
               <Link
                 to={item.to}
-                className="group flex h-full flex-col items-center rounded-2xl border border-brand-light/20 bg-cream/50 px-8 py-10 text-center transition-all duration-500 hover:border-brand-light/40 hover:bg-cream hover:shadow-lg hover:shadow-brand/5"
+                className="group flex h-full flex-col items-center rounded-2xl border border-brand-light/20 bg-cream/50 px-8 py-10 text-center transition-all duration-500 hover:border-brand-light/40 hover:bg-cream"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-light/15 transition-colors duration-500 group-hover:bg-brand-light/25">
                   <item.icon

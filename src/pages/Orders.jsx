@@ -125,7 +125,7 @@ export default function Orders() {
                 >
                   <Link
                     to={`/order/${order.id}`}
-                    className="block rounded-xl border border-brand-light/20 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-brand-light/35 hover:shadow-sm"
+                    className="block rounded-xl border border-brand-light/20 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-brand-light/35"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="font-mono text-xs text-text-secondary">訂單編號：{order.id}</p>
