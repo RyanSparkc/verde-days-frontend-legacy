@@ -2,6 +2,12 @@ import { createElement, lazy, Suspense } from 'react';
 import { createHashRouter } from 'react-router';
 import FrontendLayout from './components/layout/FrontendLayout';
 
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminCouponsPending = lazy(() => import('./pages/admin/AdminCouponsPending'));
+const AdminArticlesPending = lazy(() => import('./pages/admin/AdminArticlesPending'));
 const Home = lazy(() => import('./pages/Home'));
 const Products = lazy(() => import('./pages/Products'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -52,6 +58,17 @@ export const router = createHashRouter([
       { path: 'about', element: withRouteSuspense(About) },
     ],
   },
-  { path: '/login', element: renderPlaceholder('管理員登入') },
+  { path: '/login', element: withRouteSuspense(AdminLogin) },
+  {
+    path: '/admin',
+    element: withRouteSuspense(AdminLayout),
+    children: [
+      { index: true, element: withRouteSuspense(AdminProducts) },
+      { path: 'products', element: withRouteSuspense(AdminProducts) },
+      { path: 'orders', element: withRouteSuspense(AdminOrders) },
+      { path: 'coupons', element: withRouteSuspense(AdminCouponsPending) },
+      { path: 'articles', element: withRouteSuspense(AdminArticlesPending) },
+    ],
+  },
   { path: '*', element: renderPlaceholder('404 — 找不到頁面') },
 ]);
