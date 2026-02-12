@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, Trash2, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react';
 import { fetchCart, updateCartItem, deleteCartItem, deleteCartAll } from '@/slice/cartReducer';
 import { ease } from '@/constants/motion';
 import { currency } from '@/utils/format';
@@ -62,6 +62,12 @@ function CartSkeleton() {
   );
 }
 
+const emptyCartQuickLinks = [
+  { to: '/products?category=foliage', label: '觀葉植物' },
+  { to: '/products?category=succulent', label: '多肉植物' },
+  { to: '/products?category=giftset', label: '植栽禮盒' },
+];
+
 // ─── 空購物車 ───
 function EmptyCart() {
   return (
@@ -69,7 +75,7 @@ function EmptyCart() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease }}
-      className="flex flex-col items-center justify-center py-24 text-center"
+      className="mx-auto mt-6 flex w-full max-w-xl flex-col items-center rounded-2xl border border-brand-light/20 bg-white/75 px-8 py-12 text-center shadow-sm md:mt-10"
     >
       <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brand-light/20">
         <ShoppingBag size={36} strokeWidth={1.2} className="text-brand" />
@@ -82,17 +88,31 @@ function EmptyCart() {
       </p>
       <Link
         to="/products"
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-8 py-3 text-sm font-medium tracking-wide text-white transition-all duration-300 hover:bg-brand-dark hover:shadow-md"
+        className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-10 py-3 text-sm font-medium tracking-[0.08em] text-white transition-all duration-300 hover:scale-[1.02] hover:bg-brand-dark hover:shadow-md"
       >
         去逛逛
       </Link>
+
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        {emptyCartQuickLinks.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className="rounded-full border border-brand-light/40 px-4 py-1.5 text-xs text-text-secondary transition-colors hover:border-brand-light hover:text-brand-dark"
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
     </motion.div>
   );
 }
 
 // ─── 單一商品卡片 ───
 function CartItemCard({ item, loadingItemId, dispatch }) {
+  const [isDeleting, setIsDeleting] = useState(false);
   const isLoading = loadingItemId === item.id || loadingItemId === 'all';
+  const loadingText = isDeleting ? '移除中...' : '更新中...';
 
   const handleQtyChange = (newQty) => {
     if (newQty < 1) return;
@@ -100,7 +120,12 @@ function CartItemCard({ item, loadingItemId, dispatch }) {
   };
 
   const handleDelete = () => {
-    dispatch(deleteCartItem(item.id));
+    setIsDeleting(true);
+    dispatch(deleteCartItem(item.id))
+      .unwrap()
+      .catch(() => {
+        setIsDeleting(false);
+      });
   };
 
   return (
@@ -110,8 +135,18 @@ function CartItemCard({ item, loadingItemId, dispatch }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -80 }}
       transition={{ duration: 0.3, ease }}
-      className={`rounded-xl bg-white p-4 ${isLoading ? 'pointer-events-none opacity-50' : ''}`}
+      className={`relative rounded-xl bg-white p-4 ${isLoading ? 'pointer-events-none opacity-70' : ''}`}
+      aria-busy={isLoading}
     >
+      {isLoading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/75 backdrop-blur-[1px]">
+          <div className="inline-flex items-center gap-2 rounded-full bg-brand-light/30 px-3 py-1.5 text-xs text-brand-dark">
+            <Loader2 size={14} className="animate-spin" />
+            {loadingText}
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-4">
         {/* 商品縮圖 */}
         <Link to={`/product/${item.product_id}`} className="flex-shrink-0">
@@ -133,13 +168,18 @@ function CartItemCard({ item, loadingItemId, dispatch }) {
               {item.product.title}
             </Link>
             <button
-              onClick={handleDelete}
-              className="flex-shrink-0 cursor-pointer p-1 text-text-secondary/50 transition-colors hover:text-error"
-              aria-label="刪除商品"
-            >
-              <Trash2 size={16} strokeWidth={1.5} />
-            </button>
-          </div>
+                onClick={handleDelete}
+                className="flex-shrink-0 cursor-pointer p-1 text-text-secondary/50 transition-colors hover:text-error"
+                aria-label="刪除商品"
+                disabled={isLoading}
+              >
+                {isDeleting ? (
+                  <Loader2 size={16} strokeWidth={1.5} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} strokeWidth={1.5} />
+                )}
+              </button>
+            </div>
 
           {/* 單價 */}
           <p className="mt-1 text-xs text-text-secondary">
@@ -169,7 +209,7 @@ function CartItemCard({ item, loadingItemId, dispatch }) {
               </button>
             </div>
 
-            <span className="font-display text-sm font-medium text-text-primary">
+            <span className="text-sm font-medium text-text-primary">
               NT${currency(item.final_total)}
             </span>
           </div>
@@ -185,6 +225,7 @@ export default function Cart() {
   const navigate = useNavigate();
   const { cart, isPageLoading, loadingItemId } = useSelector((state) => state.cart);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const isClearingAll = loadingItemId === 'all';
 
   useEffect(() => {
     dispatch(fetchCart());
@@ -205,26 +246,25 @@ export default function Cart() {
           transition={{ duration: 0.7, ease }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between">
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-brand-dark"
-            >
-              <ChevronLeft size={16} strokeWidth={1.5} />
-              繼續購物
-            </Link>
-
-            {!isEmpty && (
+          {!isEmpty && (
+            <div className="flex items-center justify-between">
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-brand-dark"
+              >
+                <ChevronLeft size={16} strokeWidth={1.5} />
+                繼續購物
+              </Link>
               <button
                 onClick={() => setShowClearConfirm(true)}
                 className="cursor-pointer text-sm text-text-secondary/60 transition-colors hover:text-error"
               >
                 清空購物車
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div className="mt-4">
+          <div className={isEmpty ? 'mt-0' : 'mt-4'}>
             <p className="font-display text-xs uppercase tracking-[0.3em] text-brand">
               Cart
             </p>
@@ -241,17 +281,27 @@ export default function Cart() {
           /* ===== 主要內容：商品列表 + 訂單摘要 ===== */
           <div className="grid gap-8 md:grid-cols-5 md:gap-12">
             {/* 左欄：商品列表 */}
-            <div className="space-y-4 md:col-span-3">
-              <AnimatePresence mode="popLayout">
-                {cart.carts.map((item) => (
-                  <CartItemCard
-                    key={item.id}
-                    item={item}
-                    loadingItemId={loadingItemId}
-                    dispatch={dispatch}
-                  />
-                ))}
-              </AnimatePresence>
+            <div className="relative md:col-span-3">
+              {isClearingAll && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-cream/70 backdrop-blur-[1px]">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-brand-light/30 px-3 py-1.5 text-xs text-brand-dark">
+                    <Loader2 size={14} className="animate-spin" />
+                    清空購物車中...
+                  </div>
+                </div>
+              )}
+              <div className="space-y-4">
+                <AnimatePresence mode="popLayout">
+                  {cart.carts.map((item) => (
+                    <CartItemCard
+                      key={item.id}
+                      item={item}
+                      loadingItemId={loadingItemId}
+                      dispatch={dispatch}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* 右欄：訂單摘要 */}
@@ -287,7 +337,7 @@ export default function Cart() {
                   {/* 合計 */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-text-primary">合計</span>
-                    <span className="font-display text-xl text-brand-dark">
+                    <span className="text-xl font-medium text-brand-dark">
                       NT${currency(cart.final_total)}
                     </span>
                   </div>
@@ -340,12 +390,21 @@ export default function Cart() {
                 </button>
                 <button
                   onClick={() => {
+                    if (isClearingAll) return;
                     dispatch(deleteCartAll());
                     setShowClearConfirm(false);
                   }}
-                  className="flex-1 cursor-pointer rounded-full bg-error py-2.5 text-sm font-medium text-white transition-colors hover:opacity-90"
+                  disabled={isClearingAll}
+                  className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-error py-2.5 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  確定清空
+                  {isClearingAll ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      清空中...
+                    </>
+                  ) : (
+                    '確定清空'
+                  )}
                 </button>
               </div>
             </motion.div>
