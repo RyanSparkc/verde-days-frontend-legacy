@@ -178,15 +178,26 @@ export default function AdminArticles() {
 
   const handleTogglePublic = async (article) => {
     setProcessingArticleId(article.id);
+    const currentPublic = Boolean(article?.isPublic);
+    const nextPublic = !currentPublic;
+
+    setArticles((prev) =>
+      prev.map((item) => (item.id === article.id ? { ...item, isPublic: nextPublic } : item)),
+    );
 
     try {
-      await updateAdminArticle(article.id, toArticleDraft({ ...article, isPublic: !article.isPublic }));
+      const articleDetail = await fetchAdminArticleById(article.id);
+      const nextDraft = toArticleDraft({ ...articleDetail, isPublic: nextPublic });
+
+      await updateAdminArticle(article.id, nextDraft);
       setFeedback({
         type: 'success',
-        text: article.isPublic ? '已改為未公開' : '已改為公開',
+        text: nextPublic ? '已改為公開' : '已改為未公開',
       });
-      await loadArticles(currentPage);
     } catch (error) {
+      setArticles((prev) =>
+        prev.map((item) => (item.id === article.id ? { ...item, isPublic: currentPublic } : item)),
+      );
       setFeedback({ type: 'error', text: normalizeArticleError(error, '更新公開狀態失敗') });
     } finally {
       setProcessingArticleId('');
@@ -218,8 +229,8 @@ export default function AdminArticles() {
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-[11px] tracking-[0.28em] text-brand">EDITORIAL STUDIO</p>
-            <h2 className="mt-2 font-serif-tc text-3xl text-text-primary">文章管理</h2>
-            <p className="mt-2 text-sm text-text-secondary">維護品牌內容、公開狀態與封面視覺。</p>
+            <h2 className="mt-2 font-serif-tc text-3xl text-text-primary">內容編輯工作台</h2>
+            <p className="mt-2 text-sm text-text-secondary">集中維護文章內容、公開狀態與封面視覺。</p>
           </div>
           <button
             type="button"
@@ -263,98 +274,177 @@ export default function AdminArticles() {
         <ArticlesSkeleton />
       ) : (
         <div className="overflow-hidden rounded-3xl border border-brand-light/20 bg-white/92">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-brand-light/18 bg-brand-light/8 text-text-secondary">
-                  <th className="px-4 py-3 font-medium">文章</th>
-                  <th className="px-4 py-3 font-medium">作者</th>
-                  <th className="px-4 py-3 font-medium">建立日期</th>
-                  <th className="px-4 py-3 text-center font-medium">狀態</th>
-                  <th className="px-4 py-3 text-right font-medium">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {articles.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-text-secondary">目前沒有文章資料。</td>
-                  </tr>
-                ) : (
-                  articles.map((article) => {
-                    const isProcessing = processingArticleId === article.id;
-                    return (
-                      <tr key={article.id} className="border-b border-brand-light/12 last:border-b-0">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            {article.image ? (
-                              <img
-                                src={article.image}
-                                alt={article.title}
-                                className="h-12 w-12 rounded-lg border border-brand-light/18 object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-brand-light/18 bg-brand-light/10">
-                                <BookOpenText size={14} className="text-text-secondary" />
-                              </div>
-                            )}
-                            <div>
-                              <p className="line-clamp-1 font-medium text-text-primary">{article.title}</p>
-                              <p className="mt-0.5 line-clamp-1 text-xs text-text-secondary/80">
-                                {article.description || '無摘要'}
-                              </p>
-                            </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-light/16 bg-brand-light/6 px-4 py-3">
+            <p className="text-sm font-medium text-text-primary">文章列表</p>
+            <p className="text-xs text-text-secondary">
+              第 {pagination?.current_page || currentPage} 頁 / 共 {pagination?.total_pages || 1} 頁
+            </p>
+          </div>
+          {articles.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm text-text-secondary">目前沒有文章資料。</div>
+          ) : (
+            <>
+              <div className="divide-y divide-brand-light/12 md:hidden">
+                {articles.map((article) => {
+                  const isProcessing = processingArticleId === article.id;
+                  return (
+                    <article key={article.id} className="space-y-3 px-4 py-4">
+                      <div className="flex items-start gap-3">
+                        {article.image ? (
+                          <img
+                            src={article.image}
+                            alt={article.title}
+                            className="h-14 w-14 rounded-lg border border-brand-light/18 object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-brand-light/18 bg-brand-light/10">
+                            <BookOpenText size={15} className="text-text-secondary" />
                           </div>
-                        </td>
-                        <td className="px-4 py-3 text-text-secondary">{article.author || 'Verde Days'}</td>
-                        <td className="px-4 py-3 text-text-secondary">{formatDate(article.create_at)}</td>
-                        <td className="px-4 py-3 text-center">
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="line-clamp-2 text-sm font-medium text-text-primary">{article.title}</p>
+                          <p className="mt-1 line-clamp-2 text-xs text-text-secondary/80">{article.description || '無摘要'}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 rounded-xl bg-brand-light/8 px-3 py-2 text-xs">
+                        <p className="text-text-secondary">作者：{article.author || 'Verde Days'}</p>
+                        <p className="text-right text-text-secondary">建立：{formatDate(article.create_at)}</p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePublic(article)}
+                          disabled={isProcessing}
+                          className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                            article.isPublic
+                              ? 'border-brand-light/40 bg-brand-light/15 text-brand-dark hover:bg-brand-light/22'
+                              : 'border-brand-light/30 bg-brand-light/8 text-text-secondary hover:bg-brand-light/13'
+                          }`}
+                        >
+                          {isProcessing ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : article.isPublic ? (
+                            <Eye size={12} strokeWidth={1.8} />
+                          ) : (
+                            <EyeOff size={12} strokeWidth={1.8} />
+                          )}
+                          {article.isPublic ? '已公開' : '未公開'}
+                        </button>
+
+                        <div className="flex gap-2">
                           <button
                             type="button"
-                            onClick={() => handleTogglePublic(article)}
-                            disabled={isProcessing}
-                            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-                              article.isPublic
-                                ? 'border-brand-light/40 bg-brand-light/15 text-brand-dark hover:bg-brand-light/22'
-                                : 'border-brand-light/30 bg-brand-light/8 text-text-secondary hover:bg-brand-light/13'
-                            }`}
+                            onClick={() => openEditEditor(article.id)}
+                            className="inline-flex items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary"
                           >
-                            {isProcessing ? (
-                              <Loader2 size={12} className="animate-spin" />
-                            ) : article.isPublic ? (
-                              <Eye size={12} strokeWidth={1.8} />
-                            ) : (
-                              <EyeOff size={12} strokeWidth={1.8} />
-                            )}
-                            {article.isPublic ? '已公開' : '未公開'}
+                            <PencilLine size={12} strokeWidth={1.8} />
+                            編輯
                           </button>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setDeleteTarget(article)}
+                            className="inline-flex items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
+                          >
+                            <Trash2 size={12} strokeWidth={1.8} />
+                            刪除
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="hidden overflow-x-auto md:block">
+                <table className="min-w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-brand-light/18 bg-brand-light/8 text-text-secondary">
+                      <th className="px-4 py-3 font-medium">文章</th>
+                      <th className="px-4 py-3 font-medium">作者</th>
+                      <th className="px-4 py-3 font-medium">建立日期</th>
+                      <th className="px-4 py-3 text-center font-medium">狀態</th>
+                      <th className="px-4 py-3 text-right font-medium">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {articles.map((article) => {
+                      const isProcessing = processingArticleId === article.id;
+                      return (
+                        <tr key={article.id} className="border-b border-brand-light/12 last:border-b-0">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              {article.image ? (
+                                <img
+                                  src={article.image}
+                                  alt={article.title}
+                                  className="h-12 w-12 rounded-lg border border-brand-light/18 object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-brand-light/18 bg-brand-light/10">
+                                  <BookOpenText size={14} className="text-text-secondary" />
+                                </div>
+                              )}
+                              <div>
+                                <p className="line-clamp-1 font-medium text-text-primary">{article.title}</p>
+                                <p className="mt-0.5 line-clamp-1 text-xs text-text-secondary/80">
+                                  {article.description || '無摘要'}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-text-secondary">{article.author || 'Verde Days'}</td>
+                          <td className="px-4 py-3 text-text-secondary">{formatDate(article.create_at)}</td>
+                          <td className="px-4 py-3 text-center">
                             <button
                               type="button"
-                              onClick={() => openEditEditor(article.id)}
-                              className="inline-flex items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary"
+                              onClick={() => handleTogglePublic(article)}
+                              disabled={isProcessing}
+                              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                                article.isPublic
+                                  ? 'border-brand-light/40 bg-brand-light/15 text-brand-dark hover:bg-brand-light/22'
+                                  : 'border-brand-light/30 bg-brand-light/8 text-text-secondary hover:bg-brand-light/13'
+                              }`}
                             >
-                              <PencilLine size={12} strokeWidth={1.8} />
-                              編輯
+                              {isProcessing ? (
+                                <Loader2 size={12} className="animate-spin" />
+                              ) : article.isPublic ? (
+                                <Eye size={12} strokeWidth={1.8} />
+                              ) : (
+                                <EyeOff size={12} strokeWidth={1.8} />
+                              )}
+                              {article.isPublic ? '已公開' : '未公開'}
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeleteTarget(article)}
-                              className="inline-flex items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
-                            >
-                              <Trash2 size={12} strokeWidth={1.8} />
-                              刪除
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => openEditEditor(article.id)}
+                                className="inline-flex items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary"
+                              >
+                                <PencilLine size={12} strokeWidth={1.8} />
+                                編輯
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteTarget(article)}
+                                className="inline-flex items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
+                              >
+                                <Trash2 size={12} strokeWidth={1.8} />
+                                刪除
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       )}
 
