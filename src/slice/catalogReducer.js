@@ -71,7 +71,9 @@ export const fetchArticlesIfNeeded = createAsyncThunk(
 
     dispatch(setArticlesLoading(true));
     try {
-      const list = await listArticles();
+      const result = await listArticles({ page: 1, tag: '' });
+      const list = Array.isArray(result) ? result : Array.isArray(result?.articles) ? result.articles : [];
+
       dispatch(setArticlesList(list));
       dispatch(setArticlesFetchedAt(Date.now()));
       return list;
