@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router';
 import { motion } from 'motion/react';
 import { ArrowRight, CalendarDays, Leaf } from 'lucide-react';
 import { listArticles } from '@/services/articleService';
+import Pagination from '@/components/common/Pagination';
 import { ease } from '@/constants/motion';
 
 const formatDate = (timestamp) => {
@@ -35,22 +36,40 @@ function ArticlesSkeleton() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ activeTag = '', onResetTag }) {
+  const hasFilter = Boolean(activeTag);
+
   return (
     <section className="bg-cream pb-24 pt-28 md:pb-32 md:pt-32">
       <div className="mx-auto max-w-7xl px-6 text-center lg:px-8">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-light/20 text-brand-dark">
           <Leaf size={26} strokeWidth={1.7} />
         </div>
-        <h1 className="mt-6 font-display text-3xl font-light text-text-primary">植物日誌暫時沒有內容</h1>
-        <p className="mt-3 text-sm text-text-secondary">我們正在整理新的文章，稍後回來看看。</p>
-        <Link
-          to="/products"
-          className="mt-7 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
-        >
-          先逛逛植物
-          <ArrowRight size={16} strokeWidth={1.8} />
-        </Link>
+        <h1 className="mt-6 font-display text-3xl font-light text-text-primary">
+          {hasFilter ? `目前沒有 #${activeTag} 的文章` : '植物日誌暫時沒有內容'}
+        </h1>
+        <p className="mt-3 text-sm text-text-secondary">
+          {hasFilter ? '你可以改看其他標籤，或先回到全部文章。' : '我們正在整理新的文章，稍後回來看看。'}
+        </p>
+
+        {hasFilter ? (
+          <button
+            type="button"
+            onClick={onResetTag}
+            className="mt-7 inline-flex cursor-pointer items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
+          >
+            回全部文章
+            <ArrowRight size={16} strokeWidth={1.8} />
+          </button>
+        ) : (
+          <Link
+            to="/products"
+            className="mt-7 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
+          >
+            先逛逛植物
+            <ArrowRight size={16} strokeWidth={1.8} />
+          </Link>
+        )}
       </div>
     </section>
   );
@@ -101,9 +120,35 @@ function ArticleCard({ article, index }) {
 }
 
 export default function Articles() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [articles, setArticles] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [pagination, setPagination] = useState({
+    total_pages: 1,
+    current_page: 1,
+    has_pre: false,
+    has_next: false,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const currentPage = useMemo(() => {
+    const page = Number(searchParams.get('page') || 1);
+    if (!Number.isFinite(page) || page < 1) return 1;
+    return Math.floor(page);
+  }, [searchParams]);
+
+  const currentTag = useMemo(() => String(searchParams.get('tag') || '').trim(), [searchParams]);
+
+  const updateQuery = useCallback(
+    (page, tag, { replace = false } = {}) => {
+      const next = new URLSearchParams();
+      if (tag) next.set('tag', String(tag).trim());
+      next.set('page', String(Math.max(1, Number(page) || 1)));
+      setSearchParams(next, { replace });
+    },
+    [setSearchParams],
+  );
 
   useEffect(() => {
     let isActive = true;
@@ -113,9 +158,25 @@ export default function Articles() {
       setError('');
 
       try {
-        const list = await listArticles();
+        const result = await listArticles({ page: currentPage, tag: currentTag });
         if (!isActive) return;
-        setArticles(list);
+
+        const nextArticles = Array.isArray(result?.articles) ? result.articles : [];
+        const nextTags = Array.isArray(result?.tags) ? result.tags : [];
+        const nextPagination = {
+          total_pages: Number(result?.pagination?.total_pages) || 1,
+          current_page: Number(result?.pagination?.current_page) || 1,
+          has_pre: Boolean(result?.pagination?.has_pre),
+          has_next: Boolean(result?.pagination?.has_next),
+        };
+
+        setArticles(nextArticles);
+        setTags(nextTags);
+        setPagination(nextPagination);
+
+        if (nextPagination.current_page !== currentPage) {
+          updateQuery(nextPagination.current_page, currentTag, { replace: true });
+        }
       } catch {
         if (!isActive) return;
         setError('載入文章失敗，請稍後再試。');
@@ -131,7 +192,7 @@ export default function Articles() {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [currentPage, currentTag, updateQuery]);
 
   const [featuredArticle, ...otherArticles] = useMemo(() => articles, [articles]);
 
@@ -152,7 +213,9 @@ export default function Articles() {
       </section>
     );
   }
-  if (articles.length === 0) return <EmptyState />;
+  if (articles.length === 0) {
+    return <EmptyState activeTag={currentTag} onResetTag={() => updateQuery(1, '')} />;
+  }
 
   return (
     <section className="relative overflow-hidden bg-cream pb-24 pt-28 md:pb-32 md:pt-32">
@@ -173,6 +236,40 @@ export default function Articles() {
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-secondary md:text-base">
             把照護技巧、空間靈感與選品觀點整理成可實際使用的內容，讓你在日常中慢慢養出自己的綠色節奏。
           </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.04, ease }}
+          className="mb-9 flex flex-wrap items-center gap-2.5 md:mb-10"
+        >
+          <span className="mr-1 text-xs tracking-[0.18em] text-text-secondary/85">FILTER</span>
+          <button
+            type="button"
+            onClick={() => updateQuery(1, '')}
+            className={`cursor-pointer rounded-full border px-3.5 py-1.5 text-xs tracking-[0.08em] transition-colors md:text-sm ${
+              !currentTag
+                ? 'border-brand bg-brand text-white shadow-[0_8px_18px_rgba(92,107,74,0.16)]'
+                : 'border-brand-light/35 bg-white/80 text-text-secondary hover:border-brand-light/55 hover:bg-white hover:text-brand-dark'
+            }`}
+          >
+            全部
+          </button>
+          {tags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => updateQuery(1, tag)}
+              className={`cursor-pointer rounded-full border px-3.5 py-1.5 text-xs tracking-[0.08em] transition-colors md:text-sm ${
+                currentTag === tag
+                  ? 'border-brand bg-brand text-white shadow-[0_8px_18px_rgba(92,107,74,0.16)]'
+                  : 'border-brand-light/35 bg-white/80 text-text-secondary hover:border-brand-light/55 hover:bg-white hover:text-brand-dark'
+              }`}
+            >
+              #{tag}
+            </button>
+          ))}
         </motion.div>
 
         {featuredArticle ? (
@@ -229,6 +326,15 @@ export default function Articles() {
           {otherArticles.map((article, index) => (
             <ArticleCard key={article.id} article={article} index={index} />
           ))}
+        </div>
+
+        <div className="mt-10 border-t border-brand-light/20 pt-7 md:mt-12 md:pt-8">
+          <Pagination
+            pagination={pagination}
+            onPageChange={(nextPage) => {
+              updateQuery(nextPage, currentTag);
+            }}
+          />
         </div>
       </div>
     </section>
