@@ -118,75 +118,133 @@ export default function AdminOrders() {
         <OrdersSkeleton />
       ) : (
         <div className="overflow-hidden rounded-3xl border border-brand-light/20 bg-white/92">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-brand-light/18 bg-brand-light/8 text-text-secondary">
-                  <th className="px-4 py-3 font-medium">訂單編號</th>
-                  <th className="px-4 py-3 font-medium">客戶</th>
-                  <th className="px-4 py-3 text-right font-medium">金額</th>
-                  <th className="px-4 py-3 text-center font-medium">付款狀態</th>
-                  <th className="px-4 py-3 font-medium">建立時間</th>
-                  <th className="px-4 py-3 text-right font-medium">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-text-secondary">目前沒有訂單資料。</td>
-                  </tr>
-                ) : (
-                  orders.map((order) => {
-                    const isProcessing = processingOrderId === order.id;
-                    return (
-                      <tr key={order.id} className="border-b border-brand-light/12 last:border-b-0">
-                        <td className="px-4 py-3 font-mono text-xs text-text-secondary">{order.id}</td>
-                        <td className="px-4 py-3">
-                          <p className="text-sm font-medium text-text-primary">{order.user?.name || '未提供姓名'}</p>
-                          <p className="text-xs text-text-secondary/80">{order.user?.email || '未提供 Email'}</p>
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium text-text-primary">
-                          NT${currency(order.final_total ?? order.total ?? 0)}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${
-                              order.is_paid ? 'bg-brand-light/15 text-brand-dark' : 'bg-brand-light/7 text-text-secondary'
-                            }`}
-                          >
-                            {order.is_paid ? <ShieldCheck size={12} strokeWidth={1.8} /> : <ShieldX size={12} strokeWidth={1.8} />}
-                            {order.is_paid ? '已付款' : '未付款'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-text-secondary">{formatDateTime(order.create_at)}</td>
-                        <td className="px-4 py-3">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleTogglePaid(order)}
-                              disabled={isProcessing}
-                              className="inline-flex items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-55"
-                            >
-                              {isProcessing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} strokeWidth={1.8} />}
-                              {order.is_paid ? '取消付款' : '標記付款'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeleteTarget(order)}
-                              className="inline-flex items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
-                            >
-                              <Trash2 size={12} strokeWidth={1.8} />
-                              刪除
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-light/16 bg-brand-light/6 px-4 py-3">
+            <p className="text-sm font-medium text-text-primary">訂單列表</p>
+            <p className="text-xs text-text-secondary">
+              第 {pagination?.current_page || currentPage} 頁 / 共 {pagination?.total_pages || 1} 頁
+            </p>
           </div>
+
+          {orders.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm text-text-secondary">目前沒有訂單資料。</div>
+          ) : (
+            <>
+              <div className="divide-y divide-brand-light/12 md:hidden">
+                {orders.map((order) => {
+                  const isProcessing = processingOrderId === order.id;
+                  return (
+                    <article key={order.id} className="space-y-3 px-4 py-4">
+                      <div className="space-y-1">
+                        <p className="font-mono text-[11px] text-text-secondary break-all">{order.id}</p>
+                        <p className="text-xs text-text-secondary">建立時間：{formatDateTime(order.create_at)}</p>
+                      </div>
+
+                      <div className="rounded-xl bg-brand-light/8 px-3 py-2">
+                        <p className="text-sm font-medium text-text-primary">{order.user?.name || '未提供姓名'}</p>
+                        <p className="mt-0.5 text-xs text-text-secondary/80">{order.user?.email || '未提供 Email'}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 rounded-xl border border-brand-light/20 px-3 py-2">
+                        <p className="text-sm font-medium text-text-primary">NT${currency(order.final_total ?? order.total ?? 0)}</p>
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${
+                            order.is_paid ? 'bg-brand-light/15 text-brand-dark' : 'bg-brand-light/7 text-text-secondary'
+                          }`}
+                        >
+                          {order.is_paid ? <ShieldCheck size={12} strokeWidth={1.8} /> : <ShieldX size={12} strokeWidth={1.8} />}
+                          {order.is_paid ? '已付款' : '未付款'}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePaid(order)}
+                          disabled={isProcessing}
+                          className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-55"
+                        >
+                          {isProcessing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} strokeWidth={1.8} />}
+                          {order.is_paid ? '取消付款' : '標記付款'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget(order)}
+                          className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
+                        >
+                          <Trash2 size={12} strokeWidth={1.8} />
+                          刪除
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="hidden overflow-x-auto md:block">
+                <table className="min-w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-brand-light/18 bg-brand-light/8 text-text-secondary">
+                      <th className="px-4 py-3 font-medium">訂單編號</th>
+                      <th className="px-4 py-3 font-medium">客戶</th>
+                      <th className="px-4 py-3 text-right font-medium">金額</th>
+                      <th className="px-4 py-3 text-center font-medium">付款狀態</th>
+                      <th className="px-4 py-3 font-medium">建立時間</th>
+                      <th className="px-4 py-3 text-right font-medium">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((order) => {
+                      const isProcessing = processingOrderId === order.id;
+                      return (
+                        <tr key={order.id} className="border-b border-brand-light/12 last:border-b-0">
+                          <td className="px-4 py-3 font-mono text-xs text-text-secondary">{order.id}</td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm font-medium text-text-primary">{order.user?.name || '未提供姓名'}</p>
+                            <p className="text-xs text-text-secondary/80">{order.user?.email || '未提供 Email'}</p>
+                          </td>
+                          <td className="px-4 py-3 text-right font-medium text-text-primary">
+                            NT${currency(order.final_total ?? order.total ?? 0)}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${
+                                order.is_paid ? 'bg-brand-light/15 text-brand-dark' : 'bg-brand-light/7 text-text-secondary'
+                              }`}
+                            >
+                              {order.is_paid ? <ShieldCheck size={12} strokeWidth={1.8} /> : <ShieldX size={12} strokeWidth={1.8} />}
+                              {order.is_paid ? '已付款' : '未付款'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-text-secondary">{formatDateTime(order.create_at)}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePaid(order)}
+                                disabled={isProcessing}
+                                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-55"
+                              >
+                                {isProcessing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} strokeWidth={1.8} />}
+                                {order.is_paid ? '取消付款' : '標記付款'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteTarget(order)}
+                                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
+                              >
+                                <Trash2 size={12} strokeWidth={1.8} />
+                                刪除
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       )}
 
