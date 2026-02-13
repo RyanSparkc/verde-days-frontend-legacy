@@ -99,19 +99,30 @@ function DetailSkeleton() {
 function NotFound() {
   return (
     <section className="bg-cream pb-24 pt-28 md:pb-32 md:pt-32">
-      <div className="mx-auto max-w-5xl px-6 text-center lg:px-8">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-light/20 text-brand-dark">
-          <Leaf size={26} strokeWidth={1.7} />
+      <div className="mx-auto max-w-5xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl rounded-3xl border border-brand-light/25 bg-white/88 px-8 py-12 text-center shadow-[0_8px_26px_rgba(92,107,74,0.06)]">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-light/20 text-brand-dark">
+            <Leaf size={26} strokeWidth={1.7} />
+          </div>
+          <h1 className="mt-6 font-display text-3xl font-light text-text-primary">找不到這篇文章</h1>
+          <p className="mt-3 text-sm text-text-secondary">可能已下架或連結有誤，回到列表看看其他內容。</p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              to="/articles"
+              className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
+            >
+              <ArrowLeft size={16} strokeWidth={1.8} />
+              回植物日誌
+            </Link>
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-2 rounded-full border border-brand-light/45 px-6 py-3 text-sm text-brand-dark transition-colors hover:bg-brand-light/10"
+            >
+              去逛所有植物
+              <ArrowRight size={16} strokeWidth={1.8} />
+            </Link>
+          </div>
         </div>
-        <h1 className="mt-6 font-display text-3xl font-light text-text-primary">找不到這篇文章</h1>
-        <p className="mt-3 text-sm text-text-secondary">可能已下架或連結有誤，回到列表看看其他內容。</p>
-        <Link
-          to="/articles"
-          className="mt-7 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
-        >
-          <ArrowLeft size={16} strokeWidth={1.8} />
-          回植物日誌
-        </Link>
       </div>
     </section>
   );
@@ -204,6 +215,8 @@ export default function ArticleDetail() {
     const fetchDetail = async () => {
       setIsLoading(true);
       setError('');
+      setArticle(null);
+      setRelatedArticles([]);
 
       try {
         const currentArticle = await getArticleById(id);
@@ -212,11 +225,14 @@ export default function ArticleDetail() {
         setArticle(currentArticle);
 
         if (currentArticle) {
-          const related = await listRelatedArticles(currentArticle, 3);
-          if (!isActive) return;
-          setRelatedArticles(related);
-        } else {
-          setRelatedArticles([]);
+          try {
+            const related = await listRelatedArticles(currentArticle, 3);
+            if (!isActive) return;
+            setRelatedArticles(Array.isArray(related) ? related : []);
+          } catch {
+            if (!isActive) return;
+            setRelatedArticles([]);
+          }
         }
       } catch {
         if (!isActive) return;
