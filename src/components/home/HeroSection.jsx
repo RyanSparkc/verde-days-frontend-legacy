@@ -1,9 +1,11 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Link } from 'react-router';
 import { ChevronDown } from 'lucide-react';
+import SplitType from 'split-type';
 
-const HERO_IMAGE = `${import.meta.env.BASE_URL}images/banner/hero-landscape.jpeg`;
+const HERO_IMAGE_DESKTOP = `${import.meta.env.BASE_URL}images/banner/hero-landscape.jpeg`;
+const HERO_IMAGE_MOBILE = `${import.meta.env.BASE_URL}images/banner/003.jpeg`;
 
 const staggerContainer = {
   hidden: {},
@@ -23,6 +25,7 @@ const fadeUp = {
 
 export default function HeroSection() {
   const sectionRef = useRef(null);
+  const headingRef = useRef(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -35,13 +38,44 @@ export default function HeroSection() {
   const textOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
   const textY = useTransform(scrollYProgress, [0, 0.4], [0, -60]);
 
+  useEffect(() => {
+    const headingEl = headingRef.current;
+    if (!headingEl) return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const split = new SplitType(headingEl, { types: 'words' });
+    const words = headingEl.querySelectorAll('.word');
+
+    words.forEach((word, index) => {
+      word.style.transitionDelay = `${0.34 + index * 0.045}s`;
+    });
+
+    const rafId = window.requestAnimationFrame(() => {
+      headingEl.classList.add('is-revealed');
+    });
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      headingEl.classList.remove('is-revealed');
+      split.revert();
+    };
+  }, []);
+
   return (
     <section ref={sectionRef} className="relative h-screen overflow-hidden">
       {/* ===== 視差背景圖 ===== */}
       <motion.div className="absolute inset-0" style={{ y: backgroundY }}>
-        <div
-          className="absolute inset-0 -top-[15%] h-[130%] bg-cover bg-center"
-          style={{ backgroundImage: `url(${HERO_IMAGE})` }}
+        <img
+          src={HERO_IMAGE_MOBILE}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 -top-[8%] h-[116%] w-full object-cover object-center md:hidden"
+        />
+        <img
+          src={HERO_IMAGE_DESKTOP}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 -top-[15%] hidden h-[130%] w-full object-cover object-center md:block"
         />
       </motion.div>
 
@@ -76,7 +110,8 @@ export default function HeroSection() {
           {/* 主標語 */}
           <motion.h1
             variants={fadeUp}
-            className="font-display text-5xl leading-tight font-light tracking-wide text-white md:text-7xl md:leading-tight"
+            ref={headingRef}
+            className="hero-title-split font-display text-[clamp(2.1rem,8.5vw,3.1rem)] leading-[1.18] font-light tracking-[0.01em] text-white md:text-7xl md:leading-tight md:tracking-wide"
           >
             讓綠意，住進日常
           </motion.h1>
@@ -84,7 +119,7 @@ export default function HeroSection() {
           {/* 副標 */}
           <motion.p
             variants={fadeUp}
-            className="mt-6 font-body text-base font-light leading-relaxed text-white/70 md:text-lg"
+            className="mx-auto mt-5 max-w-[22rem] font-body text-sm font-light leading-relaxed text-white/70 md:mt-6 md:max-w-none md:text-lg"
           >
             為你的空間帶來自然的溫度與生命力
           </motion.p>
