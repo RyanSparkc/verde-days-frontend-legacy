@@ -324,27 +324,27 @@ export default function ArticleDetail() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.06, ease }}
-          className="relative mt-8 overflow-hidden rounded-3xl border border-brand-light/25"
-        >
-          <img src={article.image} alt={article.title} className="h-[260px] w-full object-cover md:h-[420px]" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/38 via-black/8 to-transparent" />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease }}
-          className="mt-10 rounded-3xl border border-brand-light/20 bg-white/88 p-6 shadow-[0_8px_24px_rgba(92,107,74,0.06)] md:p-9"
+          transition={{ duration: 0.68, delay: 0.06, ease }}
+          className="mt-6 overflow-hidden rounded-3xl border border-brand-light/25 bg-white/90 shadow-[0_10px_30px_rgba(92,107,74,0.1)] md:mt-7"
         >
-          <div className="prose prose-p:my-0 max-w-none text-text-primary">
-            {paragraphs.map((paragraph, index) => (
-              <p key={`${article.id}-${index}`} className="mb-5 text-[15px] leading-8 text-text-primary/90 md:text-[17px]">
-                {paragraph}
-              </p>
-            ))}
+          <div className="relative">
+            <img src={article.image} alt={article.title} className="h-[260px] w-full object-cover md:h-[420px]" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/38 via-black/8 to-transparent" />
+          </div>
+
+          <div className="p-5 md:p-8">
+            <div className="prose prose-p:my-0 max-w-none text-text-primary">
+              {paragraphs.map((paragraph, index) => (
+                <p
+                  key={`${article.id}-${index}`}
+                  className="mb-4 text-[15px] leading-8 text-text-primary/90 last:mb-0 md:text-[17px]"
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
         </motion.div>
 
