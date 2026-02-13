@@ -54,7 +54,7 @@ export default function ProductEditorDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-brand-light/30 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
+            className="cursor-pointer rounded-full border border-brand-light/30 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
           >
             關閉
           </button>
@@ -121,7 +121,7 @@ export default function ProductEditorDialog({
                     <button
                       type="button"
                       onClick={() => onRemoveSubImage(index)}
-                      className="mt-2 inline-flex items-center gap-1 text-xs text-error transition-opacity hover:opacity-80"
+                      className="mt-2 inline-flex cursor-pointer items-center gap-1 text-xs text-error transition-opacity hover:opacity-80"
                     >
                       <Trash2 size={12} />
                       移除
@@ -133,7 +133,7 @@ export default function ProductEditorDialog({
                   <button
                     type="button"
                     onClick={onAddSubImage}
-                    className="inline-flex items-center gap-1 rounded-full border border-brand-light/35 px-2.5 py-1 text-xs text-text-secondary transition-colors hover:bg-brand-light/10"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-brand-light/35 px-2.5 py-1 text-xs text-text-secondary transition-colors hover:bg-brand-light/10"
                   >
                     <Plus size={12} />
                     新增欄位
@@ -339,7 +339,7 @@ export default function ProductEditorDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-brand-light/35 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
+                className="cursor-pointer rounded-full border border-brand-light/35 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
               >
                 取消
               </button>
@@ -347,7 +347,7 @@ export default function ProductEditorDialog({
                 type="button"
                 onClick={onSubmit}
                 disabled={isSaving}
-                className="rounded-full bg-brand px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-65"
+                className="cursor-pointer rounded-full bg-brand px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-65"
               >
                 {isSaving ? '儲存中...' : mode === 'create' ? '建立商品' : '更新商品'}
               </button>

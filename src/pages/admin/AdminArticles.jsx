@@ -235,7 +235,7 @@ export default function AdminArticles() {
           <button
             type="button"
             onClick={openCreateEditor}
-            className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm text-white transition-colors hover:bg-brand-dark"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm text-white transition-colors hover:bg-brand-dark"
           >
             <Plus size={15} strokeWidth={1.8} />
             新增文章
@@ -317,7 +317,7 @@ export default function AdminArticles() {
                           type="button"
                           onClick={() => handleTogglePublic(article)}
                           disabled={isProcessing}
-                          className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                          className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                             article.isPublic
                               ? 'border-brand-light/40 bg-brand-light/15 text-brand-dark hover:bg-brand-light/22'
                               : 'border-brand-light/30 bg-brand-light/8 text-text-secondary hover:bg-brand-light/13'
@@ -337,7 +337,7 @@ export default function AdminArticles() {
                           <button
                             type="button"
                             onClick={() => openEditEditor(article.id)}
-                            className="inline-flex items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary"
+                            className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary"
                           >
                             <PencilLine size={12} strokeWidth={1.8} />
                             編輯
@@ -345,7 +345,7 @@ export default function AdminArticles() {
                           <button
                             type="button"
                             onClick={() => setDeleteTarget(article)}
-                            className="inline-flex items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
+                            className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
                           >
                             <Trash2 size={12} strokeWidth={1.8} />
                             刪除
@@ -401,7 +401,7 @@ export default function AdminArticles() {
                               type="button"
                               onClick={() => handleTogglePublic(article)}
                               disabled={isProcessing}
-                              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                              className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                                 article.isPublic
                                   ? 'border-brand-light/40 bg-brand-light/15 text-brand-dark hover:bg-brand-light/22'
                                   : 'border-brand-light/30 bg-brand-light/8 text-text-secondary hover:bg-brand-light/13'
@@ -422,7 +422,7 @@ export default function AdminArticles() {
                               <button
                                 type="button"
                                 onClick={() => openEditEditor(article.id)}
-                                className="inline-flex items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary"
+                                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-brand-light/35 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-brand-light/10 hover:text-text-primary"
                               >
                                 <PencilLine size={12} strokeWidth={1.8} />
                                 編輯
@@ -430,7 +430,7 @@ export default function AdminArticles() {
                               <button
                                 type="button"
                                 onClick={() => setDeleteTarget(article)}
-                                className="inline-flex items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
+                                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-error/35 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/8"
                               >
                                 <Trash2 size={12} strokeWidth={1.8} />
                                 刪除

@@ -31,7 +31,7 @@ export default function ConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={isProcessing}
-            className="rounded-full border border-brand-light/35 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10 disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer rounded-full border border-brand-light/35 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {cancelText}
           </button>
@@ -39,7 +39,7 @@ export default function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isProcessing}
-            className={`rounded-full px-4 py-2 text-sm text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${danger ? 'bg-error hover:bg-[#b45043]' : 'bg-brand hover:bg-brand-dark'}`}
+            className={`cursor-pointer rounded-full px-4 py-2 text-sm text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${danger ? 'bg-error hover:bg-[#b45043]' : 'bg-brand hover:bg-brand-dark'}`}
           >
             {isProcessing ? '處理中...' : confirmText}
           </button>

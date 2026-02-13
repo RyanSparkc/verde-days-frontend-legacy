@@ -30,7 +30,7 @@ export default function CouponEditorDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-brand-light/30 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
+            className="cursor-pointer rounded-full border border-brand-light/30 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
           >
             關閉
           </button>
@@ -101,7 +101,7 @@ export default function CouponEditorDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-brand-light/35 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
+            className="cursor-pointer rounded-full border border-brand-light/35 px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-brand-light/10"
           >
             取消
           </button>
@@ -109,7 +109,7 @@ export default function CouponEditorDialog({
             type="button"
             onClick={onSubmit}
             disabled={isSaving}
-            className="rounded-full bg-brand px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-65"
+            className="cursor-pointer rounded-full bg-brand px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-65"
           >
             {isSaving ? '儲存中...' : mode === 'create' ? '建立優惠券' : '更新優惠券'}
           </button>
