@@ -56,7 +56,7 @@ function ImageGallery({ mainImage, images }) {
   };
 
   return (
-    <div>
+    <div className="min-w-0">
       {/* 主圖 */}
       <div className="relative overflow-hidden rounded-2xl bg-white">
         {/* 骨架屏 — 圖片尚未載入時顯示 */}
@@ -86,15 +86,15 @@ function ImageGallery({ mainImage, images }) {
 
       {/* 縮圖列 */}
       {allImages.length > 1 && (
-        <div className="mt-3 flex gap-2">
+        <div className="hide-scrollbar mt-3 flex w-full min-w-0 snap-x snap-mandatory gap-2 overflow-x-auto overflow-y-hidden pb-1 touch-pan-x">
           {allImages.map((img, i) => (
             <button
               key={i}
               onClick={() => setActiveIndex(i)}
-              className={`h-16 w-16 cursor-pointer flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 ${
+              className={`h-14 w-14 flex-shrink-0 snap-start overflow-hidden rounded-lg border-2 transition-all duration-300 sm:h-16 sm:w-16 ${
                 i === activeIndex
-                  ? 'ring-2 ring-brand ring-offset-2'
-                  : 'opacity-60 hover:opacity-100'
+                  ? 'border-brand opacity-100'
+                  : 'border-transparent opacity-60 hover:opacity-100'
               }`}
             >
               <img
@@ -353,6 +353,7 @@ export default function ProductDetail() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
+            className="min-w-0"
           >
             <ImageGallery
               mainImage={product.imageUrl}
@@ -462,7 +463,7 @@ export default function ProductDetail() {
             <h3 className="font-display text-xl font-light text-text-primary md:text-2xl">
               商品介紹
             </h3>
-            <div className="mt-6 max-w-3xl text-sm leading-loose text-text-secondary">
+            <div className="mt-6 max-w-3xl break-words whitespace-pre-line text-sm leading-loose text-text-secondary">
               {product.content}
             </div>
           </motion.div>

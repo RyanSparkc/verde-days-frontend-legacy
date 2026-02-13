@@ -38,7 +38,7 @@ export default function ProductCard({ product, index = 0 }) {
             />
           </div>
           {/* 分類 tag */}
-          <span className="absolute top-3 left-3 rounded-full bg-brand-light/80 px-3 py-1 text-[11px] tracking-wide text-brand-dark backdrop-blur-sm">
+          <span className="absolute top-3 left-3 rounded-full bg-brand-light/80 px-3 py-1 text-xs tracking-wide text-text-primary backdrop-blur-sm">
             {categoryLabel[product.category] || product.category}
           </span>
         </div>

@@ -150,15 +150,15 @@ export default function Products() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease }}
-          className="mb-10"
+          className="mb-8 md:mb-10"
         >
           <p className="font-display text-xs uppercase tracking-[0.3em] text-brand">
             {activeCat.en}
           </p>
-          <h1 className="mt-2 font-display text-3xl font-light text-text-primary md:text-4xl">
+          <h1 className="mt-2 font-display text-2xl font-light text-text-primary sm:text-3xl md:text-4xl">
             {activeCat.key ? activeCat.label : '所有植物'}
           </h1>
-          <p className="mt-3 text-sm text-text-secondary">
+          <p className="mt-3 text-[13px] text-text-secondary sm:text-sm">
             {isLoading
               ? '載入中...'
               : hasActiveKeyword
@@ -172,13 +172,13 @@ export default function Products() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease }}
-          className="mb-6 flex flex-wrap gap-2"
+          className="hide-scrollbar -mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
         >
           {categories.map((category) => (
             <button
               key={category.key}
               onClick={() => handleCategoryChange(category.key)}
-              className={`cursor-pointer rounded-full px-5 py-2 text-sm tracking-wide transition-all duration-300 ${
+              className={`whitespace-nowrap rounded-full px-4 py-2 text-[13px] tracking-wide transition-all duration-300 md:px-5 md:text-sm ${
                 currentCategory === category.key
                   ? 'bg-brand font-medium text-white'
                   : 'bg-white text-text-secondary hover:text-brand-dark'
@@ -194,11 +194,11 @@ export default function Products() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.18, ease }}
-          className="mb-10 grid gap-3 rounded-2xl border border-brand-light/20 bg-white/80 p-3 md:grid-cols-[1fr_240px]"
+          className="mb-8 grid grid-cols-1 gap-2 rounded-2xl border border-brand-light/20 bg-white/85 p-2.5 sm:grid-cols-[minmax(0,1fr)_180px] sm:gap-3 sm:p-3 md:mb-10 md:grid-cols-[1fr_240px]"
         >
           <label
             htmlFor="product-search"
-            className="flex h-11 items-center gap-2.5 rounded-xl border border-brand-light/25 bg-white px-3"
+            className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-brand-light/25 bg-white px-3 sm:h-11 sm:gap-2.5"
           >
             <Search size={16} strokeWidth={1.7} className="text-text-secondary" />
             <input
@@ -207,16 +207,20 @@ export default function Products() {
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="搜尋商品名稱"
-              className="w-full border-none bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary/45"
+              className="w-full min-w-0 border-none bg-transparent text-[13px] text-text-primary outline-none placeholder:text-text-secondary/45 sm:text-sm"
             />
           </label>
 
-          <label className="flex h-11 items-center gap-2.5 rounded-xl border border-brand-light/25 bg-white px-3">
-            <SlidersHorizontal size={16} strokeWidth={1.7} className="text-text-secondary" />
+          <label className="flex h-10 items-center gap-2 rounded-xl border border-brand-light/25 bg-white px-3 sm:h-11 sm:gap-2.5">
+            <SlidersHorizontal
+              size={16}
+              strokeWidth={1.7}
+              className="shrink-0 text-text-secondary"
+            />
             <select
               value={currentSort}
               onChange={(event) => updateFilters({ sort: event.target.value })}
-              className="w-full cursor-pointer bg-transparent text-sm text-text-primary outline-none"
+              className="w-full min-w-0 cursor-pointer bg-transparent pr-5 text-sm text-text-primary outline-none"
             >
               {sortOptions.map((option) => (
                 <option key={option.key} value={option.key}>
