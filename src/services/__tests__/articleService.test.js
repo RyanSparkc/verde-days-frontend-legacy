@@ -12,6 +12,17 @@ vi.mock('axios', () => {
 const mockApiBase = 'https://example.com';
 const mockApiPath = 'verde-days';
 
+const createDeferred = () => {
+  let resolve;
+  let reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+  return { promise, resolve, reject };
+};
+
 beforeEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
@@ -56,6 +67,61 @@ describe('articleService helpers', () => {
 });
 
 describe('articleService api', () => {
+  it('fetchPublishedArticlesRaw starts page 2 and page 3 requests before awaiting either response', async () => {
+    const axios = (await import('axios')).default;
+    const page2 = createDeferred();
+    const page3 = createDeferred();
+    const page1Url = `${mockApiBase}/api/${mockApiPath}/articles?page=1`;
+    const page2Url = `${mockApiBase}/api/${mockApiPath}/articles?page=2`;
+    const page3Url = `${mockApiBase}/api/${mockApiPath}/articles?page=3`;
+
+    axios.get.mockImplementation((url) => {
+      if (url === page1Url) {
+        return Promise.resolve({
+          data: {
+            success: true,
+            articles: [{ id: 'a1', title: '第一頁', create_at: 100, tag: ['照護'], isPublic: true }],
+            pagination: { total_pages: 3 },
+          },
+        });
+      }
+
+      if (url === page2Url) return page2.promise;
+      if (url === page3Url) return page3.promise;
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+
+    const { fetchPublishedArticlesRaw } = await import('@/services/articleService');
+    const pending = fetchPublishedArticlesRaw();
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    try {
+      expect(axios.get).toHaveBeenNthCalledWith(1, page1Url);
+      expect(axios.get).toHaveBeenNthCalledWith(2, page2Url);
+      expect(axios.get).toHaveBeenNthCalledWith(3, page3Url);
+    } finally {
+      page2.resolve({
+        data: {
+          success: true,
+          articles: [{ id: 'a2', title: '第二頁', create_at: 200, tag: ['照護'], isPublic: true }],
+          pagination: { total_pages: 3 },
+        },
+      });
+      page3.resolve({
+        data: {
+          success: true,
+          articles: [{ id: 'a3', title: '第三頁', create_at: 300, tag: ['照護'], isPublic: true }],
+          pagination: { total_pages: 3 },
+        },
+      });
+    }
+
+    const result = await pending;
+    expect(result.map((item) => item.id)).toEqual(['a3', 'a2', 'a1']);
+  });
+
   it('listArticles returns only published data with pagination and tags', async () => {
     const axios = (await import('axios')).default;
     axios.get.mockResolvedValueOnce({

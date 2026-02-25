@@ -86,10 +86,12 @@ export async function fetchPublishedArticlesRaw() {
 
   collection.push(...firstPage.items);
 
-  for (let page = 2; page <= firstPage.totalPages; page += 1) {
-    const response = await fetchArticlesPage(page);
+  const remainingPages = Array.from({ length: Math.max(0, firstPage.totalPages - 1) }, (_, index) => index + 2);
+  const responses = await Promise.all(remainingPages.map((page) => fetchArticlesPage(page)));
+
+  responses.forEach((response) => {
     collection.push(...response.items);
-  }
+  });
 
   return sortByLatest(
     collection
