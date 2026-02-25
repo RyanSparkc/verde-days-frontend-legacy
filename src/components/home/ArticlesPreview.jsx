@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'motion/react';
@@ -78,7 +78,7 @@ export default function ArticlesPreview() {
     dispatch(fetchArticlesIfNeeded());
   }, [dispatch]);
 
-  const articles = useMemo(() => articlesList.slice(0, 3), [articlesList]);
+  const articles = articlesList.slice(0, 3);
 
   // 沒有文章時不顯示此區塊
   if (isArticlesLoading && articles.length === 0) return null;

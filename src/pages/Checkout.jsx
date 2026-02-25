@@ -303,7 +303,9 @@ export default function Checkout() {
                         className="w-full rounded-lg border border-brand-light/40 px-3 py-2.5 text-sm text-text-primary outline-none transition-colors placeholder:text-text-secondary/40 focus:border-brand"
                       />
                     )}
-                    {errors[id] && <p className="mt-1 text-xs text-error">{errors[id].message}</p>}
+                    {errors[id] ? (
+                      <p className="mt-1 text-xs text-error">{errors[id].message}</p>
+                    ) : null}
                   </div>
                 ))}
 

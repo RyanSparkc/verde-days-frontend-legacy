@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'motion/react';
@@ -14,7 +14,7 @@ export default function FeaturedProducts() {
     dispatch(fetchProductsAllIfNeeded());
   }, [dispatch]);
 
-  const products = useMemo(() => productsAll.slice(0, 4), [productsAll]);
+  const products = productsAll.slice(0, 4);
 
   return (
     <section className="bg-cream py-24 md:py-32">

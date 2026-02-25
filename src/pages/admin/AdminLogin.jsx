@@ -107,7 +107,9 @@ export default function AdminLogin() {
                     pattern: { value: /^\S+@\S+$/i, message: 'Email 格式不正確' },
                   })}
                 />
-                {errors.username && <p className="mt-1 text-xs text-error">{errors.username.message}</p>}
+                {errors.username ? (
+                  <p className="mt-1 text-xs text-error">{errors.username.message}</p>
+                ) : null}
               </div>
 
               <div>
@@ -123,14 +125,16 @@ export default function AdminLogin() {
                     minLength: { value: 6, message: '密碼至少 6 碼' },
                   })}
                 />
-                {errors.password && <p className="mt-1 text-xs text-error">{errors.password.message}</p>}
+                {errors.password ? (
+                  <p className="mt-1 text-xs text-error">{errors.password.message}</p>
+                ) : null}
               </div>
 
-              {authError && (
+              {authError ? (
                 <div className="rounded-xl border border-error/25 bg-error/6 px-3 py-2 text-xs text-error">
                   {authError}
                 </div>
-              )}
+              ) : null}
 
               <button
                 type="submit"

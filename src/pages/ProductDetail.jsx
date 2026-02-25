@@ -46,7 +46,7 @@ function ImageGallery({ mainImage, images }) {
   }, [mainImage, images]);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [loadedSet, setLoadedSet] = useState(new Set());
+  const [loadedSet, setLoadedSet] = useState(() => new Set());
 
   const currentSrc = allImages[activeIndex];
   const isCurrentLoaded = loadedSet.has(currentSrc);

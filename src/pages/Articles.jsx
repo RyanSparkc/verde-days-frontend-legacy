@@ -198,7 +198,7 @@ export default function Articles() {
     };
   }, [currentPage, currentTag, updateQuery]);
 
-  const [featuredArticle, ...otherArticles] = useMemo(() => articles, [articles]);
+  const [featuredArticle, ...otherArticles] = articles;
 
   if (isLoading) return <ArticlesSkeleton />;
   if (error) {
