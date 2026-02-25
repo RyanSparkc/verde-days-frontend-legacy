@@ -1,2 +1,3 @@
-export const currency = (num) =>
-  new Intl.NumberFormat("zh-TW").format(num);
+const currencyFormatter = new Intl.NumberFormat('zh-TW');
+
+export const currency = (num) => currencyFormatter.format(num);
