@@ -67,6 +67,85 @@ describe('articleService helpers', () => {
 });
 
 describe('articleService api', () => {
+  it('dedupes concurrent listArticles and listRelatedArticles to one crawl request', async () => {
+    const axios = (await import('axios')).default;
+    const page1 = createDeferred();
+    const page1Url = `${mockApiBase}/api/${mockApiPath}/articles?page=1`;
+
+    axios.get.mockImplementation((url) => {
+      if (url === page1Url) return page1.promise;
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+
+    const { listArticles, listRelatedArticles, __resetArticleServiceCacheForTests } = await import(
+      '@/services/articleService'
+    );
+    __resetArticleServiceCacheForTests();
+
+    const pending = Promise.all([
+      listArticles({ page: 1, pageSize: 6 }),
+      listRelatedArticles({ id: 'outside', tag: ['照護'] }, 2),
+    ]);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(axios.get).toHaveBeenCalledTimes(1);
+    expect(axios.get).toHaveBeenCalledWith(page1Url);
+
+    page1.resolve({
+      data: {
+        success: true,
+        articles: [
+          { id: 'a1', title: 'A1', create_at: 200, tag: ['照護'], isPublic: true },
+          { id: 'a2', title: 'A2', create_at: 100, tag: ['送禮'], isPublic: true },
+        ],
+        pagination: { total_pages: 1 },
+      },
+    });
+
+    const [listResult, relatedResult] = await pending;
+    expect(listResult.articles.map((item) => item.id)).toEqual(['a1', 'a2']);
+    expect(relatedResult.map((item) => item.id)).toEqual(['a1', 'a2']);
+  });
+
+  it('reuses cache within TTL and refetches after TTL expiration', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+
+    try {
+      const axios = (await import('axios')).default;
+      const page1Url = `${mockApiBase}/api/${mockApiPath}/articles?page=1`;
+      axios.get.mockResolvedValue({
+        data: {
+          success: true,
+          articles: [{ id: 'a1', title: 'A1', create_at: 100, tag: ['照護'], isPublic: true }],
+          pagination: { total_pages: 1 },
+        },
+      });
+
+      const { listArticles, ARTICLE_CACHE_TTL_MS, __resetArticleServiceCacheForTests } = await import(
+        '@/services/articleService'
+      );
+      __resetArticleServiceCacheForTests();
+
+      await listArticles({ page: 1 });
+      await listArticles({ page: 1 });
+
+      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(axios.get).toHaveBeenCalledWith(page1Url);
+
+      vi.advanceTimersByTime(ARTICLE_CACHE_TTL_MS + 1);
+
+      await listArticles({ page: 1 });
+
+      expect(axios.get).toHaveBeenCalledTimes(2);
+      expect(axios.get).toHaveBeenNthCalledWith(2, page1Url);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('fetchPublishedArticlesRaw starts page 2 and page 3 requests before awaiting either response', async () => {
     const axios = (await import('axios')).default;
     const page2 = createDeferred();

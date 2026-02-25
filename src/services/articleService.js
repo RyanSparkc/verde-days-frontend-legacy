@@ -4,6 +4,13 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
 export const ARTICLE_PAGE_SIZE = 6;
+export const ARTICLE_CACHE_TTL_MS = 60 * 1000;
+
+const articleCache = {
+  data: null,
+  expiresAt: 0,
+  inflight: null,
+};
 
 export const normalizeArticle = (item) => {
   const rawTag = item?.tag;
@@ -100,8 +107,37 @@ export async function fetchPublishedArticlesRaw() {
   );
 }
 
+export function __resetArticleServiceCacheForTests() {
+  articleCache.data = null;
+  articleCache.expiresAt = 0;
+  articleCache.inflight = null;
+}
+
+const getPublishedArticlesWithCache = () => {
+  const now = Date.now();
+  if (articleCache.data && articleCache.expiresAt > now) {
+    return Promise.resolve(articleCache.data);
+  }
+
+  if (articleCache.inflight) {
+    return articleCache.inflight;
+  }
+
+  articleCache.inflight = fetchPublishedArticlesRaw()
+    .then((articles) => {
+      articleCache.data = articles;
+      articleCache.expiresAt = Date.now() + ARTICLE_CACHE_TTL_MS;
+      return articles;
+    })
+    .finally(() => {
+      articleCache.inflight = null;
+    });
+
+  return articleCache.inflight;
+};
+
 export async function listArticles({ page = 1, tag = '', pageSize = ARTICLE_PAGE_SIZE } = {}) {
-  const allArticles = await fetchPublishedArticlesRaw();
+  const allArticles = await getPublishedArticlesWithCache();
   const filtered = filterByTag(allArticles, tag);
   const paged = paginateArticles(filtered, page, pageSize);
 
@@ -135,7 +171,7 @@ export async function listRelatedArticles(article, limit = 3) {
   const safeLimit = Math.max(0, Number(limit) || 0);
   if (safeLimit === 0) return [];
 
-  const allArticles = await fetchPublishedArticlesRaw();
+  const allArticles = await getPublishedArticlesWithCache();
   const candidates = allArticles.filter((item) => item.id !== String(article.id || ''));
 
   const tags = Array.isArray(article?.tag) ? article.tag : [];
