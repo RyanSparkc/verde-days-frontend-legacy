@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'motion/react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
@@ -43,6 +43,11 @@ const reviews = [
 ];
 
 export default function Testimonials() {
+  const autoplay = useMemo(
+    () => Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true }),
+    []
+  );
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
@@ -52,7 +57,7 @@ export default function Testimonials() {
         '(min-width: 768px)': { slidesToScroll: 3 },
       },
     },
-    [Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true })]
+    [autoplay]
   );
 
   const [scrollSnaps, setScrollSnaps] = useState([]);
