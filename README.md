@@ -4,7 +4,7 @@ A production-oriented React commerce frontend that emphasizes engineering struct
 
 ## Live Demo
 
-- https://stareclipse.github.io/verde-days/
+- https://ryansparkc.github.io/verde-days/
 
 ## Project Snapshot
 
@@ -81,7 +81,9 @@ docs/plans/       # Design and implementation planning docs
 ## Deployment
 
 - Target: GitHub Pages
-- Base path: `/verde-days/` (configured in `vite.config.js`)
+- Repository: https://github.com/RyanSparkc/verde-days
+- Base path: auto-generated as `/<repo-name>/` in production (fallback: `/verde-days/`)
+- Optional override: set `VITE_PAGES_REPO` before build (for renamed repos)
 - Deploy command:
   - `pnpm deploy`
 
