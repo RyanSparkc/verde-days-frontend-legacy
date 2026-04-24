@@ -1,0 +1,1 @@
+import{d as n}from"./index-D9-3jh1K.js";const r=void 0,o=void 0,i=n.create({baseURL:r}),A=(s,a)=>{const e=s?.response?.data?.message;return Array.isArray(e)?e.join("、"):e||s?.message||a};export{o as A,i as a,A as g};
