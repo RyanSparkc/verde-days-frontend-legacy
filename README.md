@@ -4,7 +4,7 @@ A production-oriented React commerce frontend that emphasizes engineering struct
 
 ## Live Demo
 
-- https://ryansparkc.github.io/verde-days/
+- https://ryansparkc.github.io/verde-days-frontend-legacy/
 
 ## Project Snapshot
 
@@ -81,8 +81,8 @@ docs/plans/       # Design and implementation planning docs
 ## Deployment
 
 - Target: GitHub Pages
-- Repository: https://github.com/RyanSparkc/verde-days
-- Base path: auto-generated as `/<repo-name>/` in production (fallback: `/verde-days/`)
+- Repository: https://github.com/RyanSparkc/verde-days-frontend-legacy
+- Base path: auto-generated as `/<repo-name>/` in production (fallback: `/verde-days-frontend-legacy/`)
 - Optional override: set `VITE_PAGES_REPO` before build (for renamed repos)
 - Deploy command:
   - `pnpm deploy`

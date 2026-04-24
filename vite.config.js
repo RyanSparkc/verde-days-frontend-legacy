@@ -8,7 +8,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const githubRepository = process.env.GITHUB_REPOSITORY;
 const repositoryName =
   process.env.VITE_PAGES_REPO ||
-  (githubRepository ? githubRepository.split('/')[1] : 'verde-days');
+  (githubRepository ? githubRepository.split('/')[1] : 'verde-days-frontend-legacy');
 const productionBasePath = `/${repositoryName}/`;
 
 // https://vite.dev/config/
