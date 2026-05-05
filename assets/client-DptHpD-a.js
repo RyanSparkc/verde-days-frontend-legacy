@@ -1,0 +1,1 @@
+import{d as r}from"./index-TewpKoY5.js";const t="https://ec-course-api.hexschool.io/v2",n="react-plant",c=r.create({baseURL:t}),i=(e,a)=>{const s=e?.response?.data?.message;return Array.isArray(s)?s.join("、"):s||e?.message||a};export{n as A,c as a,i as g};
